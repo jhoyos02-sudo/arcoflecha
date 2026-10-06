@@ -25,15 +25,19 @@ public:
 	}
 
 	Vector2D operator-(const Vector2D& otro) const {
-		return {x + otro.x, y + otro.y};
+		return {x - otro.x, y - otro.y};
 	}
 
-	Vector2D operator*(const Vector2D& otro) const {
-		return {x + otro.x, y + otro.y};
+	T operator*(const Vector2D& otro) const {
+		return {x * otro.x + y * otro.y};
+	}
+
+	Vector2D operator*(const T escalar) const {
+		return { x * escalar, y * escalar };
 	}
 
 	// TODO: completar
-	T length() const {}
+	T length() const { return std::sqrt((x * x + y * y)); }
 
 	// Operadores de entrada/salida
 	friend std::ostream& operator<<(std::ostream& out, const Vector2D& v) {
@@ -41,7 +45,8 @@ public:
 	}
 };
 
+template<std::floating_point T = float>
 // TODO: definir alias Point2D<T>
-
+using Point2D = Vector2D <T>;
 
 #endif // VECTOR2D_H

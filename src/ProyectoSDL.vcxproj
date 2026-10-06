@@ -15,12 +15,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="baloon.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="rectangle.cpp" />
     <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="baloon.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="rectangle.h" />
     <ClInclude Include="texture.h" />

@@ -3,6 +3,7 @@
 
 #include "rectangle.h"
 #include "vector2D.h"
+#include "texture.h"
 
 enum Colores {
 	AZUL,

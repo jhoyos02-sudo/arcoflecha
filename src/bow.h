@@ -2,6 +2,7 @@
 #define BOW_H
 
 #include <SDL3/SDL.h>
+#include "texture.h"
 #include "rectangle.h"
 #include "vector2D.h"
 

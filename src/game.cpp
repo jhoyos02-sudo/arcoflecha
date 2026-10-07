@@ -103,9 +103,9 @@ Game::handleEvents()
 	}
 }
 
-// bool
-// Game::checkCollision(const Rectangle& rect)
-// {
-//	// TODO
-//	return false;
-// }
+ bool
+ Game::checkCollision(const Rectangle& rect)
+ {
+	// TODO
+	return false;
+ }

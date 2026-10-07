@@ -7,6 +7,9 @@
 #include <vector>
 
 // #include "rectangle.h"
+#include "baloon.h"
+#include "arrow.h"
+#include "bow.h"
 
 // Declaraciones anticipadas
 class Texture;
@@ -46,6 +49,10 @@ private:
 	// Elemento del juego
 	// TODO: añadir atributos para los objetos del juego
 
+	Baloon* globo;
+	Arrow* flecha;
+	Bow* arco;
+
 public:
 	Game();
 	~Game();
@@ -57,7 +64,7 @@ public:
 	void run();
 
 	// Comprueba si hay algún objeto colocado en ese rectángulo
-	// bool checkCollision(const Rectangle& rect);
+	bool checkCollision(const Rectangle& rect);
 };
 
 inline Texture*

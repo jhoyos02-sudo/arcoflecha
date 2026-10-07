@@ -36,6 +36,16 @@ public:
 		return { x * escalar, y * escalar };
 	}
 
+	void operator+=(const Vector2D& otro) {
+		x += otro.getX();
+		y += otro.getY();
+	}
+
+	void operator-=(const Vector2D& otro) {
+		x -= otro.getX();
+		y -= otro.getY();
+	}
+
 	// TODO: completar
 	T length() const { return std::sqrt((x * x + y * y)); }
 

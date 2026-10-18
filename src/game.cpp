@@ -1,9 +1,6 @@
 #include "game.h"
-
 #include <string>
-
 #include <SDL3_image/SDL_image.h>
-
 #include "texture.h"
 
 using namespace std;

@@ -14,7 +14,7 @@ Bow::render() const {
 
 bool
 Bow::update(float delta) {
-	bool keep;
+	bool keep = true;
 
 	return keep;
 }

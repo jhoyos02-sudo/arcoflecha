@@ -9,7 +9,7 @@ Arrow::render() const {
 
 bool
 Arrow::update(float delta) {
-	bool keep;
+	bool keep = true;
 
 	return keep;
 }

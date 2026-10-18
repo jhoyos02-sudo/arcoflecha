@@ -5,6 +5,8 @@
 #include "vector2D.h"
 #include "game.h"
 
+class Game;
+
 class Arrow 
 {
 private:

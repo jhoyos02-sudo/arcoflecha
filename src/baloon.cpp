@@ -14,7 +14,7 @@ Baloon::render() const {
 
 bool
 Baloon::update(float delta) {
-	bool keep;
+	bool keep = true;
 
 	return keep;
 }

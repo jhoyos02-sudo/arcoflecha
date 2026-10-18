@@ -49,9 +49,9 @@ private:
 	// Elemento del juego
 	// TODO: añadir atributos para los objetos del juego
 
-	Baloon* globo;
-	Arrow* flecha;
-	Bow* arco;
+	//Baloon* globo;
+	//Arrow* flecha;
+	//Bow* arco;
 
 public:
 	Game();

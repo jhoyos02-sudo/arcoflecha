@@ -1,5 +1,5 @@
-#ifndef BALOON_H
-#define BALOON_H
+#ifndef BALLOON_H
+#define BALLOON_H
 
 #include "rectangle.h"
 #include "vector2D.h"
@@ -15,7 +15,7 @@ enum Colores {
 	MORADO
 };
 
-class Baloon 
+class Balloon 
 {
 private:
 	Rectangle hitbox;
@@ -27,10 +27,11 @@ private:
 	Texture* textura;
 
 public:
+	Balloon(Rectangle h, Colores c, Vector2D<float> vel, Texture* text);
 	bool hit(const Rectangle& obj);
 	void render() const;
 	bool update(float delta);
 
 };
 
-#endif // BALOON_H
+#endif // BALLOON_H

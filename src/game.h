@@ -7,12 +7,15 @@
 #include <vector>
 
 // #include "rectangle.h"
-#include "baloon.h"
+#include "balloon.h"
 #include "arrow.h"
 #include "bow.h"
 
 // Declaraciones anticipadas
 class Texture;
+class Balloon;
+class Arrow;
+class Bow;
 
 /**
  * Clase principal del juego.
@@ -32,6 +35,8 @@ public:
 	{
 		BOW = 0,
 		ARROW,
+		BALLOON,
+		DIGITS,
 		NUM_TEXTURES
 	};
 
@@ -49,9 +54,9 @@ private:
 	// Elemento del juego
 	// TODO: añadir atributos para los objetos del juego
 
-	//Baloon* globo;
-	//Arrow* flecha;
-	//Bow* arco;
+	Balloon* globo;
+	Arrow* flecha;
+	Bow* arco;
 
 public:
 	Game();

@@ -22,6 +22,9 @@ struct TextureSpec
 constexpr array<TextureSpec, Game::NUM_TEXTURES> textureList{
 	TextureSpec{"bow.png", 1, 2},
 	{"arrow.png"},
+	TextureSpec{"balloons.png", 7, 6},
+	TextureSpec{"digits.png", 1, 10}
+
 };
 
 Game::Game()
@@ -55,6 +58,8 @@ Game::Game()
 	// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 	// TODO: crear los objetos del juego
+	/*globo = new Balloon;*/
+
 }
 
 Game::~Game()

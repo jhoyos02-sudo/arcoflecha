@@ -27,7 +27,7 @@
     <ClCompile Include="texture.cpp">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
-    <ClCompile Include="baloon.cpp">
+    <ClCompile Include="balloon.cpp">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
     <ClCompile Include="arrow.cpp">
@@ -50,7 +50,7 @@
     <ClInclude Include="vector2D.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="baloon.h">
+    <ClInclude Include="balloon.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="arrow.h">

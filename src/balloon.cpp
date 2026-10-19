@@ -23,10 +23,12 @@ bool
 Balloon::update(float delta) {
 	bool keep = true;
 	hitbox.move(velocidad * delta);
+	if (hitbox.getTopLeftCorner().getY() + hitbox.getHeight() < 0) {
+		return false;
+	}
 	return keep;
 }
 
 Balloon::~Balloon() {
-	delete textura;
 	textura = nullptr;
 }

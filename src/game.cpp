@@ -85,7 +85,11 @@ void
 Game::update()
 {
 	for (int i = 0; i < globos.size(); i++) {
-		globos[i]->update(FRAME_PERIOD);
+		if (!globos[i]->update(FRAME_PERIOD)) {
+			delete globos[i];
+			globos.erase(globos.begin() + i);
+			i--;
+		}
 	}
 
 	if(SDL_GetTicks() % 500 < FRAME_PERIOD) apareceGlobo(); // Aparecen globos una vez por segundo

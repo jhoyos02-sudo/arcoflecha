@@ -5,6 +5,7 @@
 #include <array>
 #include <istream>
 #include <vector>
+#include <random>
 
 // #include "rectangle.h"
 #include "balloon.h"
@@ -28,8 +29,8 @@ public:
 	// Periodo entre actualizaciones en milisegundos
 	static constexpr int FRAME_PERIOD = 1000 / FRAME_RATE;
 	// Tamaño real de la ventana
-	static constexpr int WINDOW_WIDTH = 800;
-	static constexpr int WINDOW_HEIGHT = 600;
+	static constexpr int WINDOW_WIDTH = 1200;
+	static constexpr int WINDOW_HEIGHT = 900;
 
 	enum TextureName
 	{
@@ -54,8 +55,9 @@ private:
 	// Elemento del juego
 	// TODO: añadir atributos para los objetos del juego
 
-	Balloon* globo;
-	Arrow* flecha;
+	std::mt19937_64 random;
+	std::vector<Balloon*> globos;
+	std::vector<Arrow*> flechas;
 	Bow* arco;
 
 public:
@@ -70,6 +72,8 @@ public:
 
 	// Comprueba si hay algún objeto colocado en ese rectángulo
 	bool checkCollision(const Rectangle& rect);
+
+	void apareceGlobo();
 };
 
 inline Texture*

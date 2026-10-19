@@ -11,14 +11,12 @@ class Arrow
 {
 private:
 	Game* game;
-
 	Rectangle hitbox;
-
 	Vector2D<float> velocidad;
-
 	Texture* textura;
 
 public:
+	Arrow(Game* g, Rectangle hit, Vector2D<float> vel, Texture* text);
 	void render() const;
 	bool update(float delta);
 

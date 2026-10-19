@@ -9,6 +9,7 @@ using namespace std;
 constexpr const char* const WINDOW_TITLE = "Bow & Arrow 1.0";
 constexpr const char* IMAGE_ROOT = "../assets/images/";
 constexpr const char* LEVEL_ROOT = "../assets/levels/";
+constexpr const float ESCALA_GLOBOS = 0.65f;
 
 // Estructura para especificar las texturas que hay que
 // cargar y el tamaño de su matriz de frames
@@ -58,8 +59,9 @@ Game::Game()
 	// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 	// TODO: crear los objetos del juego
-	/*globo = new Balloon;*/
+	//arco = new Bow();
 
+	random = mt19937_64(random_device()());
 }
 
 Game::~Game()
@@ -72,7 +74,9 @@ Game::render() const
 {
 	SDL_RenderClear(renderer);
 
-	// TODO
+	for (int i = 0; i < globos.size(); i++) {
+		globos[i]->render();
+	}
 
 	SDL_RenderPresent(renderer);
 }
@@ -80,14 +84,25 @@ Game::render() const
 void
 Game::update()
 {
-	// TODO
+	for (int i = 0; i < globos.size(); i++) {
+		globos[i]->update(FRAME_PERIOD);
+	}
+
+	if(SDL_GetTicks() % 500 < FRAME_PERIOD) apareceGlobo(); // Aparecen globos una vez por segundo
 }
 
 void
 Game::run()
 {
 	while (!exit) {
-		// TODO: implementar bucle del juego
+		Uint32 start = SDL_GetTicks();
+
+		handleEvents();
+		update();
+		render();
+
+		Uint32 delta = SDL_GetTicks() - start;
+		if (delta < FRAME_PERIOD) SDL_Delay(FRAME_PERIOD - delta);
 	}
 }
 
@@ -110,4 +125,19 @@ Game::handleEvents()
  {
 	// TODO
 	return false;
+ }
+
+ void
+ Game::apareceGlobo() {
+	 int globoAncho = getTexture(BALLOON)->getFrameWidth() * ESCALA_GLOBOS;
+	 int globoAlto = getTexture(BALLOON)->getFrameWidth() * ESCALA_GLOBOS;
+	 
+	 int globoX = uniform_int_distribution<int>(globoAncho, WINDOW_WIDTH - globoAncho)(random);
+	 float globoVel = uniform_real_distribution<float>(0.1f, 1.5f)(random);
+
+	 Rectangle globoBox(Vector2D<float>(globoX, WINDOW_HEIGHT - globoAlto), globoAncho, globoAlto);
+
+	 int globoColor = uniform_int_distribution<int>(0, getTexture(BALLOON)->getNumRows() - 1)(random);
+
+	 globos.push_back(new Balloon(globoBox, globoColor, Vector2D<float>(0, -globoVel), getTexture(BALLOON)));
  }

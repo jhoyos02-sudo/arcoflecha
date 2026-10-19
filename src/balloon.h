@@ -27,10 +27,12 @@ private:
 	Texture* textura;
 
 public:
-	Balloon(Rectangle h, Colores c, Vector2D<float> vel, Texture* text);
+	
+	Balloon(Rectangle h, int c, Vector2D<float> vel, Texture* text);
 	bool hit(const Rectangle& obj);
 	void render() const;
 	bool update(float delta);
+	~Balloon();
 
 };
 

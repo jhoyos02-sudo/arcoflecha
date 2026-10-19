@@ -2,8 +2,8 @@
 
 using namespace std;
 
-Balloon::Balloon(Rectangle h, Colores c, Vector2D<float> vel, Texture* text) {
-	color = c;
+Balloon::Balloon(Rectangle h, int c, Vector2D<float> vel, Texture* text) {
+	color = Colores(c);
 	velocidad = vel;
 	textura = text;
 	hitbox = h;
@@ -22,8 +22,11 @@ Balloon::render() const {
 bool
 Balloon::update(float delta) {
 	bool keep = true;
-
 	hitbox.move(velocidad * delta);
-
 	return keep;
+}
+
+Balloon::~Balloon() {
+	delete textura;
+	textura = nullptr;
 }

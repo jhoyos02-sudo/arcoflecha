@@ -10,16 +10,13 @@ class Bow
 {
 private:
 	Rectangle hitbox;
-
 	Vector2D<float> direccion;
-
 	int numFlechas;
-
 	bool armado;
-
 	Texture* textura;
 
 public:
+	Bow(Rectangle hit, Vector2D<float> dir, int nFlechas, bool arm, Texture* textura);
 	void handleEvent(const SDL_Event& event);
 	void render() const;
 	bool update(float delta);

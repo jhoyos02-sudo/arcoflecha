@@ -15,6 +15,12 @@ constexpr const float ESCALA_ARCOFLECHA = 0.3f;
 constexpr const int NUM_FLECHAS = 3;
 constexpr const float VELOCIDAD_FLECHA = 2;
 
+// Color fondo
+constexpr const Uint8 r = 57;
+constexpr const Uint8 g = 150;
+constexpr const Uint8 b = 72;
+constexpr const Uint8 a = 1;
+
 // Estructura para especificar las texturas que hay que
 // cargar y el tamaño de su matriz de frames
 struct TextureSpec
@@ -62,7 +68,6 @@ Game::Game()
 	// Configura que se pueden utilizar capas translúcidas
 	// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-	// TODO: crear los objetos del juego
 	arco = new Bow(Rectangle(Vector2D<>(0, WINDOW_HEIGHT / 2), getTexture(BOW)->getFrameWidth() * ESCALA_ARCOFLECHA, getTexture(BOW)->getFrameHeight() * ESCALA_ARCOFLECHA), Vector2D<float>(0, 0), NUM_FLECHAS, getTexture(BOW)); // Provisional porque es horrible
 
 	random = mt19937_64(random_device()());
@@ -88,6 +93,8 @@ Game::~Game()
 void
 Game::render() const
 {
+	SDL_SetRenderDrawColor(renderer,r ,g , b, a);
+
 	SDL_RenderClear(renderer);
 
 	// Renderiza el arco
@@ -112,7 +119,7 @@ Game::update()
 	
 	// Actualiza el estado de todos los globos de la escena
 	for (int i = 0; i < globos.size(); i++) {
-		if (!globos[i]->update(FRAME_PERIOD)) { // Si el globo se encuentra fuera de la pantalla lo elimina de la lista
+		if (!globos[i]->update(FRAME_PERIOD)) { // Si el globo se encuentra eliminado lo destruye
 			delete globos[i];
 			globos.erase(globos.begin() + i); 
 			i--;
@@ -169,7 +176,11 @@ Game::handleEvents()
 bool
 Game::checkCollision(const Rectangle& rect)
 {
-	// TODO
+	for (int i = 0; i < globos.size(); i++) {
+		if (globos[i]->hit(rect)) {
+			return true;
+		}
+	}
 	return false;
 }
 

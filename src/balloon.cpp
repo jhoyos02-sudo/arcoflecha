@@ -7,11 +7,17 @@ Balloon::Balloon(Rectangle h, int c, Vector2D<float> vel, Texture* text) {
 	velocidad = vel;
 	textura = text;
 	hitbox = h;
+
+	explotado = false;
 }
 
 bool 
 Balloon::hit(const Rectangle& obj) {
-	return hitbox.hasIntersection(obj);
+	if (hitbox.hasIntersection(obj)) {
+		explotado = true;
+		return true;
+	}
+	else return false;
 }
 
 void
@@ -21,8 +27,6 @@ Balloon::render() const {
 
 bool
 Balloon::update(float delta) {
-	bool keep = true;
-
 	// Mueve el globo teniendo en cuenta delta
 	hitbox.move(velocidad * delta);
 
@@ -31,7 +35,11 @@ Balloon::update(float delta) {
 		return false;
 	}
 
-	return keep;
+	if (explotado) {
+		return false;
+	}
+
+	return true;
 }
 
 Balloon::~Balloon() {

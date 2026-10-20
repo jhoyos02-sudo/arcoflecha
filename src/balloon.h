@@ -23,6 +23,8 @@ private:
 	Vector2D<float> velocidad;
 	Texture* textura;
 
+	bool explotado;
+
 public:
 	
 	Balloon(Rectangle h, int c, Vector2D<float> vel, Texture* text);

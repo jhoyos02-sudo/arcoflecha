@@ -13,6 +13,7 @@ constexpr const char* LEVEL_ROOT = "../assets/levels/";
 constexpr const float ESCALA_GLOBOS = 0.4f;
 constexpr const float ESCALA_ARCOFLECHA = 0.3f;
 constexpr const int NUM_FLECHAS = 3;
+constexpr const float VELOCIDAD_FLECHA = 2;
 
 // Estructura para especificar las texturas que hay que
 // cargar y el tamaño de su matriz de frames
@@ -69,7 +70,19 @@ Game::Game()
 
 Game::~Game()
 {
-	// TODO: liberar la memoria reservada por la clase
+	for (int i = 0; i < globos.size(); i++) {
+		delete globos[i];
+	}
+
+	for (int i = 0; i < textures.size(); i++) {
+		delete textures[i];
+	}
+
+	for (int i = 0; i < flechas.size(); i++) {
+		delete flechas[i];
+	}
+
+	delete arco;
 }
 
 void
@@ -185,7 +198,7 @@ Game::disparaFlecha(Vector2D<float> pos) {
 	int flechaAlto = getTexture(ARROW)->getFrameWidth() * ESCALA_ARCOFLECHA;
 	int flechaAncho = getTexture(ARROW)->getFrameHeight() * ESCALA_ARCOFLECHA;
 
-	Vector2D<float> flechaVel = Vector2D<float>(3, 0);
+	Vector2D<float> flechaVel = Vector2D<float>(VELOCIDAD_FLECHA, 0);
 
 	Rectangle flechaBox(Vector2D<float>(pos.getX(), pos.getY() + (getTexture(BOW)->getFrameHeight()  - getTexture(ARROW)->getFrameHeight()) * ESCALA_ARCOFLECHA / 2.0), flechaAlto, flechaAncho);
 

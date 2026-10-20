@@ -62,7 +62,7 @@ bool
 Bow::update(float delta) {
 	bool keep = true;
 	hitbox.move(direccion * delta);
-	cout<< hitbox.getTopLeftCorner().getY()<<endl;
+	//cout<< hitbox.getTopLeftCorner().getY()<<endl;
 	return keep;
 }
 

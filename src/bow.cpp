@@ -10,7 +10,7 @@ Bow::Bow(Rectangle hit, Vector2D<float> dir, int nFlechas, Texture* text) {
 	textura = text;
 }
 
-void
+bool
 Bow::handleEvent(const SDL_Event& event) {
 	if (event.type == SDL_EVENT_KEY_DOWN) {
 		switch (event.key.key) {
@@ -35,6 +35,7 @@ Bow::handleEvent(const SDL_Event& event) {
 			case SDLK_D:
 				if (armado) {
 					armado = false;
+					return true;
 				}
 				break;
 
@@ -48,6 +49,8 @@ Bow::handleEvent(const SDL_Event& event) {
 	/*if (event.type == SDL_EVENT_KEY_UP) {
 		direccion = Vector2D<float>(0, 0);
 	}*/
+
+	return false;
 }
 
 void
@@ -61,4 +64,9 @@ Bow::update(float delta) {
 	hitbox.move(direccion * delta);
 	cout<< hitbox.getTopLeftCorner().getY()<<endl;
 	return keep;
+}
+
+Vector2D<float>
+Bow::getPos() {
+	return hitbox.getTopLeftCorner();
 }

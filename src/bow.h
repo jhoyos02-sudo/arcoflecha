@@ -18,10 +18,10 @@ private:
 
 public:
 	Bow(Rectangle hit, Vector2D<float> dir, int nFlechas, Texture* textura);
-	void handleEvent(const SDL_Event& event);
+	bool handleEvent(const SDL_Event& event);
 	void render() const;
 	bool update(float delta);
-
+	Vector2D<float> getPos();
 };
 
 #endif // BOW_H

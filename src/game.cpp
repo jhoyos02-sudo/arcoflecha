@@ -9,7 +9,10 @@ using namespace std;
 constexpr const char* const WINDOW_TITLE = "Bow & Arrow 1.0";
 constexpr const char* IMAGE_ROOT = "../assets/images/";
 constexpr const char* LEVEL_ROOT = "../assets/levels/";
-constexpr const float ESCALA_GLOBOS = 0.65f;
+
+constexpr const float ESCALA_GLOBOS = 0.4f;
+constexpr const float ESCALA_ARCOFLECHA = 0.3f;
+constexpr const int NUM_FLECHAS = 3;
 
 // Estructura para especificar las texturas que hay que
 // cargar y el tamaño de su matriz de frames
@@ -59,7 +62,7 @@ Game::Game()
 	// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 	// TODO: crear los objetos del juego
-	arco = new Bow(Rectangle(Vector2D<>(0, WINDOW_HEIGHT / 2), getTexture(BOW)->getFrameWidth() / 2, getTexture(BOW)->getFrameHeight() / 2), Vector2D<float>(0, 0), 3, getTexture(BOW)); // Provisional porque es horrible
+	arco = new Bow(Rectangle(Vector2D<>(0, WINDOW_HEIGHT / 2), getTexture(BOW)->getFrameWidth() * ESCALA_ARCOFLECHA, getTexture(BOW)->getFrameHeight() * ESCALA_ARCOFLECHA), Vector2D<float>(0, 0), NUM_FLECHAS, getTexture(BOW)); // Provisional porque es horrible
 
 	random = mt19937_64(random_device()());
 }
@@ -144,7 +147,9 @@ Game::handleEvents()
 		if (event.type == SDL_EVENT_QUIT)
 			exit = true;
 
-		arco->handleEvent(event);
+		if (arco->handleEvent(event)) {
+			disparaFlecha(arco->getPos());
+		}
 	}
 }
 
@@ -177,12 +182,12 @@ Game::apareceGlobo() {
 
 void
 Game::disparaFlecha(Vector2D<float> pos) {
-	int flechaAlto = getTexture(ARROW)->getFrameWidth();
-	int flechaAncho = getTexture(ARROW)->getFrameHeight();
+	int flechaAlto = getTexture(ARROW)->getFrameWidth() * ESCALA_ARCOFLECHA;
+	int flechaAncho = getTexture(ARROW)->getFrameHeight() * ESCALA_ARCOFLECHA;
 
-	Vector2D<float> flechaVel = Vector2D<float>(5, 0);
+	Vector2D<float> flechaVel = Vector2D<float>(3, 0);
 
-	Rectangle flechaBox(pos, flechaAlto, flechaAncho);
+	Rectangle flechaBox(Vector2D<float>(pos.getX(), pos.getY() + (getTexture(BOW)->getFrameHeight()  - getTexture(ARROW)->getFrameHeight()) * ESCALA_ARCOFLECHA / 2.0), flechaAlto, flechaAncho);
 
 	flechas.push_back(new Arrow(this, flechaBox, flechaVel, getTexture(ARROW)));
 }

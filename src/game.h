@@ -74,6 +74,7 @@ public:
 	bool checkCollision(const Rectangle& rect);
 
 	void apareceGlobo();
+	void disparaFlecha(Vector2D<float> pos);
 };
 
 inline Texture*

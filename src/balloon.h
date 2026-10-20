@@ -19,11 +19,8 @@ class Balloon
 {
 private:
 	Rectangle hitbox;
-
 	Colores color;
-
 	Vector2D<float> velocidad;
-
 	Texture* textura;
 
 public:

@@ -59,7 +59,7 @@ Game::Game()
 	// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 	// TODO: crear los objetos del juego
-	//arco = new Bow();
+	arco = new Bow(Rectangle(Vector2D<>(0, WINDOW_HEIGHT / 2), getTexture(BOW)->getFrameWidth() / 2, getTexture(BOW)->getFrameHeight() / 2), Vector2D<float>(0, 0), 3, getTexture(BOW)); // Provisional porque es horrible
 
 	random = mt19937_64(random_device()());
 }
@@ -74,8 +74,17 @@ Game::render() const
 {
 	SDL_RenderClear(renderer);
 
+	// Renderiza el arco
+	arco->render();
+
+	// Renderiza todos los globos que hay en la escena
 	for (int i = 0; i < globos.size(); i++) {
 		globos[i]->render();
+	}
+
+	// Renderiza todas las flechas que hay en la escena
+	for (int i = 0; i < flechas.size(); i++) {
+		flechas[i]->render();
 	}
 
 	SDL_RenderPresent(renderer);
@@ -84,10 +93,24 @@ Game::render() const
 void
 Game::update()
 {
+	
+	// Actualiza el estado de todos los globos de la escena
 	for (int i = 0; i < globos.size(); i++) {
-		if (!globos[i]->update(FRAME_PERIOD)) {
+		if (!globos[i]->update(FRAME_PERIOD)) { // Si el globo se encuentra fuera de la pantalla lo elimina de la lista
 			delete globos[i];
-			globos.erase(globos.begin() + i);
+			globos.erase(globos.begin() + i); 
+			i--;
+		}
+	}
+
+	// Actualiza el estado del arco
+	arco->update(FRAME_PERIOD);
+
+	// Actualiza el estado de todas las flechas de la escena
+	for (int i = 0; i < flechas.size(); i++) {
+		if (!flechas[i]->update(FRAME_PERIOD)) { // Si la flecha se encuentra fuera de la pantalla lo elimina de la lista
+			delete flechas[i];
+			flechas.erase(flechas.begin() + i);
 			i--;
 		}
 	}
@@ -98,6 +121,7 @@ Game::update()
 void
 Game::run()
 {
+
 	while (!exit) {
 		Uint32 start = SDL_GetTicks();
 
@@ -120,28 +144,45 @@ Game::handleEvents()
 		if (event.type == SDL_EVENT_QUIT)
 			exit = true;
 
-		// TODO
+		arco->handleEvent(event);
 	}
 }
 
- bool
- Game::checkCollision(const Rectangle& rect)
- {
+bool
+Game::checkCollision(const Rectangle& rect)
+{
 	// TODO
 	return false;
- }
+}
 
- void
- Game::apareceGlobo() {
-	 int globoAncho = getTexture(BALLOON)->getFrameWidth() * ESCALA_GLOBOS;
-	 int globoAlto = getTexture(BALLOON)->getFrameWidth() * ESCALA_GLOBOS;
+void
+Game::apareceGlobo() {
+	// Define el tamaño del globo en función del tamaño de la textura y la constante de escala
+	int globoAncho = getTexture(BALLOON)->getFrameWidth() * ESCALA_GLOBOS;
+	int globoAlto = getTexture(BALLOON)->getFrameHeight() * ESCALA_GLOBOS;
 	 
-	 int globoX = uniform_int_distribution<int>(globoAncho, WINDOW_WIDTH - globoAncho)(random);
-	 float globoVel = uniform_real_distribution<float>(0.1f, 1.5f)(random);
+	// Randomiza la posición en x en función de el tamaño del globo y la pantalla,y la velocidad del globo 
+	int globoX = uniform_int_distribution<int>(globoAncho, WINDOW_WIDTH - globoAncho)(random);
+	float globoVel = uniform_real_distribution<float>(0.1f, 1.5f)(random);
 
-	 Rectangle globoBox(Vector2D<float>(globoX, WINDOW_HEIGHT - globoAlto), globoAncho, globoAlto);
+	// Con los parámetros anteriores crea un collider rectangular en la parte inferior de la pantalla
+	Rectangle globoBox(Vector2D<float>(globoX, WINDOW_HEIGHT - globoAlto), globoAncho, globoAlto);
 
-	 int globoColor = uniform_int_distribution<int>(0, getTexture(BALLOON)->getNumRows() - 1)(random);
+	// Randomiza el color del globo en función de las filas que tenga la textura
+	int globoColor = uniform_int_distribution<int>(0, getTexture(BALLOON)->getNumRows() - 1)(random);
 
-	 globos.push_back(new Balloon(globoBox, globoColor, Vector2D<float>(0, -globoVel), getTexture(BALLOON)));
- }
+	// Con todo lo anterior crea un objeto de tipo globo y lo agrega a la lista de globos de la escena
+	globos.push_back(new Balloon(globoBox, globoColor, Vector2D<float>(0, -globoVel), getTexture(BALLOON)));
+}
+
+void
+Game::disparaFlecha(Vector2D<float> pos) {
+	int flechaAlto = getTexture(ARROW)->getFrameWidth();
+	int flechaAncho = getTexture(ARROW)->getFrameHeight();
+
+	Vector2D<float> flechaVel = Vector2D<float>(5, 0);
+
+	Rectangle flechaBox(pos, flechaAlto, flechaAncho);
+
+	flechas.push_back(new Arrow(this, flechaBox, flechaVel, getTexture(ARROW)));
+}

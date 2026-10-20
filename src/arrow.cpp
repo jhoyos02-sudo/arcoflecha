@@ -18,5 +18,11 @@ bool
 Arrow::update(float delta) {
 	bool keep = true;
 
+	hitbox.move(velocidad * delta);
+
+	if (hitbox.getTopLeftCorner().getX() + hitbox.getWidth() < game->WINDOW_WIDTH) {
+		return false;
+	}
+
 	return keep;
 }

@@ -22,10 +22,15 @@ Balloon::render() const {
 bool
 Balloon::update(float delta) {
 	bool keep = true;
+
+	// Mueve el globo teniendo en cuenta delta
 	hitbox.move(velocidad * delta);
+
+	// Si se sale del rango de la pantalla devuelve false
 	if (hitbox.getTopLeftCorner().getY() + hitbox.getHeight() < 0) {
 		return false;
 	}
+
 	return keep;
 }
 

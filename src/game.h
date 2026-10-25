@@ -6,6 +6,8 @@
 #include <istream>
 #include <vector>
 #include <random>
+#include <fstream>
+#include <string>
 
 // #include "rectangle.h"
 #include "balloon.h"
@@ -32,6 +34,11 @@ public:
 	static constexpr int WINDOW_WIDTH = 1200;
 	static constexpr int WINDOW_HEIGHT = 900;
 
+	// Parámetros del juego
+	static constexpr float ESCALA_GLOBOS = 0.4f;
+	static constexpr float ESCALA_ARCOFLECHA = 0.3f;
+	static constexpr float VELOCIDAD_FLECHA = 2;
+
 	enum TextureName
 	{
 		BOW = 0,
@@ -53,15 +60,16 @@ private:
 	bool exit;
 
 	// Elemento del juego
-	// TODO: añadir atributos para los objetos del juego
-
-	std::mt19937_64 random;
 	std::vector<Balloon*> globos;
 	std::vector<Arrow*> flechas;
+	int globoRetardo;
+	int nFlechas;
 	Bow* arco;
 
+	std::mt19937_64 random;
+
 public:
-	Game();
+	Game(char niv);
 	~Game();
 
 	// Obtiene una textura por su nombre
@@ -75,6 +83,8 @@ public:
 
 	void apareceGlobo();
 	void disparaFlecha(Vector2D<float> pos);
+
+	bool loadLevel(char nivel);
 };
 
 inline Texture*

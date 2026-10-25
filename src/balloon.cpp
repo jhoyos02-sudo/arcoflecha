@@ -2,13 +2,14 @@
 
 using namespace std;
 
-Balloon::Balloon(Rectangle h, int c, Vector2D<float> vel, Texture* text) {
-	color = Colores(c);
-	velocidad = vel;
-	textura = text;
-	hitbox = h;
-
+Balloon::Balloon(Rectangle h, int c, Vector2D<float> vel, Texture* text) : color(Colores(c)), velocidad(vel), textura(text), hitbox(h) {
 	explotado = false;
+
+	lastDelta = 0;
+	frame = 0;
+	finAnim = false;
+
+	frames_anim = 5;
 }
 
 bool 
@@ -22,7 +23,7 @@ Balloon::hit(const Rectangle& obj) {
 
 void
 Balloon::render() const {
-	textura->renderFrame(hitbox.to_sdl(), color, 0);
+	textura->renderFrame(hitbox.to_sdl(), color, frame);
 }
 
 bool
@@ -36,6 +37,20 @@ Balloon::update(float delta) {
 	}
 
 	if (explotado) {
+		// Comprueba que ha pasado suficiente tiempo entre frames y ejecuta la animación
+		if (lastDelta - delta > frames_anim) {
+			if (frame < 5) frame++;
+			else finAnim = true;
+
+			// Resetea lastDelta para el siguiente frame de la animación
+			lastDelta = 0;
+		}
+		
+		lastDelta += delta;
+	}
+
+	// Cuando termina la animación destruye el globo
+	if (finAnim) {
 		return false;
 	}
 

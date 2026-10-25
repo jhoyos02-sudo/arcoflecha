@@ -9,8 +9,23 @@
 
 int main(int argc, char* argv[])
 {
-	Game().run();
+	try {
+		Game game('1');
 
+		game.run();
+	}
+
+	catch (const std::exception& stdError) {
+		std::cout << "Error: " << stdError.what() << std::endl;
+	}
+
+	catch (const char* sdlError) {
+		std::cout << "Error de SDL: " << sdlError << std::endl;
+	}
+
+	catch (...) {
+		std::cout << "Error desconocido" << std::endl;
+	}
 	// TODO: manejar excepciones
 
 	return 0;

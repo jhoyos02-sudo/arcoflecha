@@ -25,6 +25,11 @@ private:
 
 	bool explotado;
 
+	float lastDelta;
+	int frame;
+	bool finAnim;
+	Uint8 frames_anim;
+
 public:
 	
 	Balloon(Rectangle h, int c, Vector2D<float> vel, Texture* text);

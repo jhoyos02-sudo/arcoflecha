@@ -1,5 +1,4 @@
 #include "game.h"
-#include <string>
 #include <SDL3_image/SDL_image.h>
 #include "texture.h"
 
@@ -10,16 +9,11 @@ constexpr const char* const WINDOW_TITLE = "Bow & Arrow 1.0";
 constexpr const char* IMAGE_ROOT = "../assets/images/";
 constexpr const char* LEVEL_ROOT = "../assets/levels/";
 
-constexpr const float ESCALA_GLOBOS = 0.4f;
-constexpr const float ESCALA_ARCOFLECHA = 0.3f;
-constexpr const int NUM_FLECHAS = 3;
-constexpr const float VELOCIDAD_FLECHA = 2;
-
 // Color fondo
-constexpr const Uint8 r = 57;
-constexpr const Uint8 g = 150;
-constexpr const Uint8 b = 72;
-constexpr const Uint8 a = 1;
+Uint8 r = 57;
+Uint8 g = 150;
+Uint8 b = 72;
+Uint8 a = 1;
 
 // Estructura para especificar las texturas que hay que
 // cargar y el tamaño de su matriz de frames
@@ -35,10 +29,10 @@ constexpr array<TextureSpec, Game::NUM_TEXTURES> textureList{
 	{"arrow.png"},
 	TextureSpec{"balloons.png", 7, 6},
 	TextureSpec{"digits.png", 1, 10}
-
 };
 
-Game::Game()
+
+Game::Game(char niv)
   : exit(false)
 {
 	// Carga SDL y crea la ventana con su renderizador
@@ -61,16 +55,26 @@ Game::Game()
 		}
 	}
 	catch (...) {
-		// TODO: liberar la memoria reservada
-		throw; // relanza la excepción
+		for (int i = 0; i < textures.size(); i++) {
+			delete textures[i];
+		}
+
+		window = nullptr;
+		renderer = nullptr;
+		throw runtime_error("Fallo al cargar las texturas"); // relanza la excepción
 	}
 
-	// Configura que se pueden utilizar capas translúcidas
-	// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+	if (!loadLevel(niv)) {
+		throw runtime_error("Fallo al cargar el archivo de nivel");
+	}
+	else {
+		// Configura que se pueden utilizar capas translúcidas
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-	arco = new Bow(Rectangle(Vector2D<>(0, WINDOW_HEIGHT / 2), getTexture(BOW)->getFrameWidth() * ESCALA_ARCOFLECHA, getTexture(BOW)->getFrameHeight() * ESCALA_ARCOFLECHA), Vector2D<float>(0, 0), NUM_FLECHAS, getTexture(BOW)); // Provisional porque es horrible
+		arco = new Bow(this, Vector2D<float>(0, WINDOW_HEIGHT / 2), nFlechas, getTexture(BOW));
 
-	random = mt19937_64(random_device()());
+		random = mt19937_64(random_device()());
+	}
 }
 
 Game::~Game()
@@ -88,6 +92,9 @@ Game::~Game()
 	}
 
 	delete arco;
+
+	window = nullptr;
+	renderer = nullptr;
 }
 
 void
@@ -138,7 +145,7 @@ Game::update()
 		}
 	}
 
-	if(SDL_GetTicks() % 500 < FRAME_PERIOD) apareceGlobo(); // Aparecen globos una vez por segundo
+	if(SDL_GetTicks() % globoRetardo < FRAME_PERIOD) apareceGlobo(); 
 }
 
 void
@@ -204,6 +211,7 @@ Game::apareceGlobo() {
 	globos.push_back(new Balloon(globoBox, globoColor, Vector2D<float>(0, -globoVel), getTexture(BALLOON)));
 }
 
+// Esto estaria bien meterlo en bow, en game un metodo addArrow con un puntero a flecha y en arrow incluir un puntero a game igual que en la flecha
 void
 Game::disparaFlecha(Vector2D<float> pos) {
 	int flechaAlto = getTexture(ARROW)->getFrameWidth() * ESCALA_ARCOFLECHA;
@@ -214,4 +222,46 @@ Game::disparaFlecha(Vector2D<float> pos) {
 	Rectangle flechaBox(Vector2D<float>(pos.getX(), pos.getY() + (getTexture(BOW)->getFrameHeight()  - getTexture(ARROW)->getFrameHeight()) * ESCALA_ARCOFLECHA / 2.0), flechaAlto, flechaAncho);
 
 	flechas.push_back(new Arrow(this, flechaBox, flechaVel, getTexture(ARROW)));
+}
+
+bool
+Game::loadLevel(char nivel) {
+	string nombreArchivo = "";
+	nombreArchivo += LEVEL_ROOT;
+	nombreArchivo += nivel;
+	nombreArchivo += ".txt";
+	
+	string lectura;
+
+	ifstream archivo(nombreArchivo);
+	if (archivo.is_open()) {
+		while (!archivo.eof()) {
+			archivo >> lectura;
+
+			if (lectura == "arrows") {
+				archivo >> nFlechas;
+			}
+
+			else if (lectura == "baldelay") {
+				archivo >> globoRetardo;
+			}
+
+			//else if (lectura == "bgcolor") {
+			//	archivo >> r;
+			//	archivo >> g;
+			//	archivo >> b;
+			//}
+
+			else if (lectura == "#") {
+				archivo.ignore(numeric_limits<streamsize>::max(), '\n');
+			}
+
+			else archivo.ignore();
+		}
+		return true;
+	}
+	else {
+		archivo.close();
+		return false;
+	}
 }

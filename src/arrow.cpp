@@ -20,7 +20,7 @@ Arrow::update(float delta) {
 
 	game->checkCollision(hitbox);
 
-	if (hitbox.getTopLeftCorner().getX() + hitbox.getWidth() > game->WINDOW_WIDTH) {
+	if (hitbox.getTopLeftCorner().getX() + hitbox.getWidth() > Game::WINDOW_WIDTH) {
 		return false;
 	}
 

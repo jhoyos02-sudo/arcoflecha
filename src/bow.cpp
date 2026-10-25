@@ -2,12 +2,12 @@
 
 using namespace std;
 
-Bow::Bow(Rectangle hit, Vector2D<float> dir, int nFlechas, Texture* text) {
-	hitbox = hit;
-	direccion = dir;
-	numFlechas = nFlechas;
+
+
+Bow::Bow(Game* g, Vector2D<float> topLeft, int nFlechas, Texture* text) : game(g), numFlechas(nFlechas), textura(text) {
 	armado = false;
-	textura = text;
+	direccion = Vector2D<float>(0, 0);
+	hitbox = Rectangle(topLeft, text->getFrameHeight() * Game::ESCALA_ARCOFLECHA, text->getFrameWidth() * Game::ESCALA_ARCOFLECHA);
 }
 
 bool
@@ -15,21 +15,18 @@ Bow::handleEvent(const SDL_Event& event) {
 	if (event.type == SDL_EVENT_KEY_DOWN) {
 		switch (event.key.key) {
 			case SDLK_W:
-				if (hitbox.getTopLeftCorner().getY() >= 0) {
-					direccion = Vector2D<float>(0, -1);
-				}
-				else direccion = Vector2D<float>(0, 0);
+				direccion = Vector2D<float>(0, -1);
 				break;
 
 			case SDLK_S:
-				if (hitbox.getTopLeftCorner().getY() + hitbox.getHeight() <= Game::WINDOW_HEIGHT) {
-					direccion = Vector2D<float>(0, 1);
-				}
-				else direccion = Vector2D<float>(0, 0);
+				direccion = Vector2D<float>(0, 1);
 				break;
 
 			case SDLK_A:
-				armado = true;
+				if (numFlechas > 0) {
+					armado = true;
+					numFlechas--;
+				}
 				break;
 
 			case SDLK_D:
@@ -44,12 +41,6 @@ Bow::handleEvent(const SDL_Event& event) {
 	}
 	else direccion = Vector2D<float>(0, 0);
 
-
-	// Ojala
-	/*if (event.type == SDL_EVENT_KEY_UP) {
-		direccion = Vector2D<float>(0, 0);
-	}*/
-
 	return false;
 }
 
@@ -61,8 +52,11 @@ Bow::render() const {
 bool
 Bow::update(float delta) {
 	bool keep = true;
-	hitbox.move(direccion * delta);
-	//cout<< hitbox.getTopLeftCorner().getY()<<endl;
+
+	if (hitbox.moved(direccion * delta).getTopLeftCorner().getY() >= 0 && hitbox.moved(direccion * delta).getTopLeftCorner().getY() + hitbox.getHeight() <= Game::WINDOW_HEIGHT) {
+		hitbox.move(direccion * delta);
+	}
+
 	return keep;
 }
 

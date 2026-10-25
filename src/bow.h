@@ -5,11 +5,14 @@
 #include "texture.h"
 #include "rectangle.h"
 #include "vector2D.h"
-#include "game.h" // ojo con esto porque solo se usa para WINDOW_HEIGHT
+#include "game.h"
+
+class Game;
 
 class Bow 
 {
 private:
+	Game* game;
 	Rectangle hitbox;
 	Vector2D<float> direccion;
 	int numFlechas;
@@ -17,7 +20,7 @@ private:
 	Texture* textura;
 
 public:
-	Bow(Rectangle hit, Vector2D<float> dir, int nFlechas, Texture* textura);
+	Bow(Game* g, Vector2D<float> topLeft, int nFlechas, Texture* textura);
 	bool handleEvent(const SDL_Event& event);
 	void render() const;
 	bool update(float delta);

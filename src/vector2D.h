@@ -46,7 +46,6 @@ public:
 		y -= otro.getY();
 	}
 
-	// TODO: completar
 	T length() const { return std::sqrt((x * x + y * y)); }
 
 	// Operadores de entrada/salida
@@ -56,7 +55,6 @@ public:
 };
 
 template<std::floating_point T = float>
-// TODO: definir alias Point2D<T>
 using Point2D = Vector2D <T>;
 
 #endif // VECTOR2D_H

@@ -28,7 +28,8 @@ constexpr array<TextureSpec, Game::NUM_TEXTURES> textureList{
 	TextureSpec{"bow.png", 1, 2},
 	{"arrow.png"},
 	TextureSpec{"balloons.png", 7, 6},
-	TextureSpec{"digits.png", 1, 10}
+	TextureSpec{"digits.png", 1, 10},
+	TextureSpec{"arrow2.png"}
 };
 
 
@@ -70,9 +71,7 @@ Game::Game(char niv)
 	else {
 		// Configura que se pueden utilizar capas translúcidas
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-
 		arco = new Bow(this, Vector2D<float>(0, WINDOW_HEIGHT / 2), nFlechas, getTexture(BOW));
-
 		random = mt19937_64(random_device()());
 	}
 }
@@ -175,7 +174,7 @@ Game::handleEvents()
 			exit = true;
 
 		if (arco->handleEvent(event)) {
-			disparaFlecha(arco->getPos());
+			disparaFlecha();
 		}
 	}
 }
@@ -213,15 +212,9 @@ Game::apareceGlobo() {
 
 // Esto estaria bien meterlo en bow, en game un metodo addArrow con un puntero a flecha y en arrow incluir un puntero a game igual que en la flecha
 void
-Game::disparaFlecha(Vector2D<float> pos) {
-	int flechaAlto = getTexture(ARROW)->getFrameWidth() * ESCALA_ARCOFLECHA;
-	int flechaAncho = getTexture(ARROW)->getFrameHeight() * ESCALA_ARCOFLECHA;
-
-	Vector2D<float> flechaVel = Vector2D<float>(VELOCIDAD_FLECHA, 0);
-
-	Rectangle flechaBox(Vector2D<float>(pos.getX(), pos.getY() + (getTexture(BOW)->getFrameHeight()  - getTexture(ARROW)->getFrameHeight()) * ESCALA_ARCOFLECHA / 2.0), flechaAlto, flechaAncho);
-
-	flechas.push_back(new Arrow(this, flechaBox, flechaVel, getTexture(ARROW)));
+Game::disparaFlecha() {
+	flechas.push_back(arco->creaFlecha(arco->getPos()));
+	nFlechas--;
 }
 
 bool

@@ -26,7 +26,6 @@ int main(int argc, char* argv[])
 	catch (...) {
 		std::cout << "Error desconocido" << std::endl;
 	}
-	// TODO: manejar excepciones
 
 	return 0;
 }

@@ -9,7 +9,7 @@
 #include <fstream>
 #include <string>
 
-// #include "rectangle.h"
+#include "rectangle.h"
 #include "balloon.h"
 #include "arrow.h"
 #include "bow.h"
@@ -45,6 +45,7 @@ public:
 		ARROW,
 		BALLOON,
 		DIGITS,
+		NUM_ARROWS,
 		NUM_TEXTURES
 	};
 
@@ -82,7 +83,7 @@ public:
 	bool checkCollision(const Rectangle& rect);
 
 	void apareceGlobo();
-	void disparaFlecha(Vector2D<float> pos);
+	void disparaFlecha();
 
 	bool loadLevel(char nivel);
 };

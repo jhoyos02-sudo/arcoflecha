@@ -13,6 +13,7 @@ bool
 Arrow::update(float delta) {
 	hitbox.move(velocidad * delta);
 
+	// Controla las colisiones del juego
 	game->checkCollision(hitbox);
 
 	if (hitbox.getTopLeftCorner().getX() + hitbox.getWidth() > Game::WINDOW_WIDTH) {

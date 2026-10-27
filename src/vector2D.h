@@ -2,6 +2,7 @@
 #define VECTOR2D_H
 
 #include <iostream>
+#include <math.h>
 
 /**
  * Vector bidimensional genérico.

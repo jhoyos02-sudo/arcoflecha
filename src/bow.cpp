@@ -11,6 +11,7 @@ Bow::Bow(Game* g, Vector2D<float> topLeft, int nFlechas, Texture* text) : game(g
 bool
 Bow::handleEvent(const SDL_Event& event) {
 	if (event.type == SDL_EVENT_KEY_DOWN) {
+		// Manejo de inputs
 		switch (event.key.key) {
 			case SDLK_W:
 				direccion = Vector2D<float>(0, -1);
@@ -60,13 +61,14 @@ Bow::update(float delta) {
 }
 
 Vector2D<float>
-Bow::getPos() {
+Bow::getPos() const {
 	return hitbox.getTopLeftCorner();
 }
 
 // Crea un nuevo objeto del tipo flecha con los parámetros de Game
 Arrow*
 Bow::creaFlecha(Vector2D<float> pos) {
+	// Crea la flecha de una forma similar a como se crea balloon
 	int flechaAlto = game->getTexture(Game::ARROW)->getFrameWidth() * Game::ESCALA_ARCOFLECHA;
 	int flechaAncho = game->getTexture(Game::ARROW)->getFrameHeight() * Game::ESCALA_ARCOFLECHA;
 

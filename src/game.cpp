@@ -1,6 +1,4 @@
 #include "game.h"
-#include <SDL3_image/SDL_image.h>
-#include "texture.h"
 
 using namespace std;
 
@@ -8,12 +6,11 @@ using namespace std;
 constexpr const char* const WINDOW_TITLE = "Bow & Arrow 1.0";
 constexpr const char* IMAGE_ROOT = "../assets/images/";
 constexpr const char* LEVEL_ROOT = "../assets/levels/";
-
-// Color fondo
-constexpr const Uint8 r = 57;
-constexpr const Uint8 g = 150;
-constexpr const Uint8 b = 72;
-constexpr const Uint8 a = 1;
+constexpr const float SCALE_FACTOR = 0.5f;
+constexpr const float BALLON_SPEED_MIN = 0.2f; // Velocidad mínima de los globos
+constexpr const float BALLON_SPEED_MAX = 0.5f; // Velocidad máxima de los globos
+constexpr const float END_TIME = 2000; //Tiempo en milisegundos que tarda el juego en terminar una vez se acaban las flechas
+constexpr const float BUTTERFLY_SIZE_FACTOR = 1.3f; // Factor de escala para las mariposas
 
 // Estructura para especificar las texturas que hay que
 // cargar y el tamaño de su matriz de frames
@@ -25,95 +22,143 @@ struct TextureSpec
 };
 
 constexpr array<TextureSpec, Game::NUM_TEXTURES> textureList{
-	TextureSpec{"bow.png", 1, 2},
-	{"arrow.png"},
-	TextureSpec{"balloons.png", 7, 6},
-	TextureSpec{"digits.png", 1, 10},
-	TextureSpec{"arrow2.png"}
+	TextureSpec{ "bow.png", 1, 2 },
+	{ "arrow.png" },
+	{ "arrow2.png" },
+	TextureSpec{ "balloons.png", 7, 6 },
+	TextureSpec{ "digits.png", 1, 10 },
+	TextureSpec{ "butterfly.png", 4, 10 }
 };
 
 
-Game::Game(char niv)
-  : exit(false)
+
+Game::Game()
+	: exit(false)
 {
 	// Carga SDL y crea la ventana con su renderizador
 	if (!SDL_Init(SDL_INIT_VIDEO))
-		throw "SDL_Init: "s + SDL_GetError();
+		throw SDLError();
 
 	if (!SDL_CreateWindowAndRenderer(WINDOW_TITLE,
-	                                 WINDOW_WIDTH, WINDOW_HEIGHT,
-	                                 0, &window, &renderer))
-		throw "window or renderer: "s + SDL_GetError();
+		WINDOW_WIDTH, WINDOW_HEIGHT,
+		0, &window, &renderer))
+		throw SDLError();
 
-	// Carga las texturas al inicio
-	try {
-		textures.fill(nullptr);
-		string imgRoot = IMAGE_ROOT;
+	textures.fill(nullptr);
+	string imgRoot = IMAGE_ROOT;
 
-		for (size_t i = 0; i < textures.size(); i++) {
-			auto [name, nrows, ncols] = textureList[i];
-			textures[i] = new Texture(renderer, (imgRoot + name).c_str(), nrows, ncols);
-		}
-	}
-	catch (...) {
-		for (int i = 0; i < textures.size(); i++) {
-			delete textures[i];
-		}
-
-		window = nullptr;
-		renderer = nullptr;
-		throw runtime_error("Fallo al cargar las texturas"); // relanza la excepción
+	for (size_t i = 0; i < textures.size(); i++) {
+		auto [name, nrows, ncols] = textureList[i];
+		textures[i] = new Texture(renderer, (imgRoot + name).c_str(), nrows, ncols);
+		if (textures[i] == NULL) throw SDLError();
 	}
 
-	if (!loadLevel(niv)) {
-		throw runtime_error("Fallo al cargar el archivo de nivel");
-	}
-	else {
-		// Configura que se pueden utilizar capas translúcidas
-		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-		arco = new Bow(this, Vector2D<float>(0, WINDOW_HEIGHT / 2), nFlechas, getTexture(BOW));
-		random = mt19937_64(random_device()());
-	}
+	endTime = 0;
+
+	score.points = 0;
+	score.texture = getTexture(SCORE);
+	score.rect = Rectangle({ 130, 10 }, 10, 1);
+
+	arrowTexture = getTexture(ARROW2);
+
+	// Configura que se pueden utilizar capas translúcidas
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+	randomGenerator = mt19937_64(random_device()()); // Inicializa el generador de números aleatorios
+
+	spawnBalloon();
+
+	bow = new Bow(Rectangle(Vector2D<float>(50, WINDOW_HEIGHT / 2), // Posición
+		getTexture(BOW)->getFrameWidth() * SCALE_FACTOR, getTexture(BOW)->getFrameHeight() * SCALE_FACTOR), // Tamaño del arco
+		Vector2D<float>(0, 0), // Velocidad inicial 
+		getTexture(BOW)); // Textura del arco
+
 }
 
-Game::~Game()
-{
-	for (int i = 0; i < globos.size(); i++) {
-		delete globos[i];
-	}
+void
+Game::spawnBalloon() {
+	int balloonWidth = getTexture(BALLOON)->getFrameWidth() * SCALE_FACTOR;
+	int balloonHeight = getTexture(BALLOON)->getFrameHeight() * SCALE_FACTOR;
 
-	for (int i = 0; i < textures.size(); i++) {
-		delete textures[i];
-	}
+	int balloonX = uniform_int_distribution<int>(balloonWidth + 40, WINDOW_WIDTH - balloonWidth)(randomGenerator); // Posición aleatoria del globo
 
-	for (int i = 0; i < flechas.size(); i++) {
-		delete flechas[i];
-	}
+	float balloonSpeed = uniform_real_distribution<float>(BALLON_SPEED_MIN, BALLON_SPEED_MAX)(randomGenerator); // Velocidad aleatoria del globo
 
-	delete arco;
+	Rectangle balloonRect(Vector2D<float>(balloonX, WINDOW_HEIGHT - balloonHeight), //Posición
+		balloonWidth, balloonHeight); // Tamaño del globo
 
-	window = nullptr;
-	renderer = nullptr;
+	int balloonColor = uniform_int_distribution<int>(0, getTexture(BALLOON)->getNumRows() - 1)(randomGenerator); // Color del globo
+
+	balloons.push_back(new Balloon(balloonRect, Vector2D<float>(0, -(balspeed + balloonSpeed)), balloonColor, getTexture(BALLOON)));
+}
+
+void
+Game::spawnButterflies() {
+	int butterflyWidth = getTexture(BUTTERFLY)->getFrameWidth() * BUTTERFLY_SIZE_FACTOR;
+	int butterflyHeight = getTexture(BUTTERFLY)->getFrameHeight() *  BUTTERFLY_SIZE_FACTOR;
+
+	int butterflyX = uniform_int_distribution<int>(butterflyWidth, WINDOW_WIDTH - butterflyWidth)(randomGenerator); // Posición aleatoria de la mariposa
+	int butterflyY = uniform_int_distribution<int>(butterflyHeight, WINDOW_HEIGHT - butterflyHeight)(randomGenerator); // Posición aleatoria de la mariposa
+	Rectangle butterflyRect(Vector2D<float>(butterflyX, butterflyY), //Posición
+		butterflyWidth, butterflyHeight); // Tamaño de la mariposa
+
+	int butterflyDir = uniform_int_distribution<int>(0, 1)(randomGenerator); // Dirección de la mariposa
+
+	int butterflyVelX = (butterflyDir == 0) ? -1 : 1; // Velocidad X de la mariposa
+
+	int butterflyVelY = uniform_int_distribution<int>(0, 1)(randomGenerator) ? 1 : -1;; // Velocidad Y de la mariposa
+
+	butterflies.push_back(new Butterfly(butterflyRect, Vector2D<float>(butterflyVelX, butterflyVelY), butterflyDir, getTexture(BUTTERFLY)));
+}
+
+void
+Game::shootArrow() {
+	Texture* arrowTexture = getTexture(ARROW);
+	Rectangle bowCollider = bow->getCollider();
+
+	Rectangle arrowCollider(Vector2D<float>(bowCollider.getTopLeftCorner().getX(), bowCollider.getTopLeftCorner().getY() + bowCollider.getHeight() * SCALE_FACTOR / 2 + arrowTexture->getFrameHeight() * SCALE_FACTOR / 2), // Posición
+		arrowTexture->getFrameWidth() * SCALE_FACTOR, arrowTexture->getFrameHeight() * SCALE_FACTOR); // Tamaño de la flecha
+
+	arrows.push_back(new Arrow(this, arrowCollider, Vector2D<float>(1, 0), arrowTexture));
+	bow->arrowShot();
 }
 
 void
 Game::render() const
 {
-	SDL_SetRenderDrawColor(renderer,r ,g , b, a);
-
+	SDL_SetRenderDrawColor(renderer,
+		static_cast<Uint8>(bgColor.red),
+		static_cast<Uint8>(bgColor.green),
+		static_cast<Uint8>(bgColor.blue),
+		SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 
-	// Renderiza el arco
-	arco->render();
+	for (int i = 0; i < balloons.size(); i++)
+		balloons[i]->render();
 
-	// Renderiza todos los globos que hay en la escena
-	for (int i = 0; i < globos.size(); i++) {
-		globos[i]->render();
+	for (int i = 0; i < arrows.size(); i++)
+		arrows[i]->render();
+
+	for (int i = 0; i < butterflies.size(); i++)
+		butterflies[i]->render();
+
+	bow->render();
+
+	int cifra, num, i = 0;
+	num = score.points;
+	while (num != 0) {
+		cifra = num % 10;
+		num /= 10;
+		score.texture->renderFrame(Rectangle(score.rect.getTopLeftCorner() + Point2D<>(WINDOW_WIDTH - 300 - (score.texture->getFrameWidth() * i), 0),
+			score.texture->getFrameWidth(),
+			score.texture->getFrameHeight()).to_sdl(), 0, cifra);
+		i++;
 	}
-
-	// Renderiza todas las flechas que hay en la escena
-	for (int i = 0; i < flechas.size(); i++) {
-		flechas[i]->render();
+	for (int j = 0; j < bow->getArrows(); j++) {
+		SDL_Point centerArrow;
+		centerArrow.x = arrowTexture->getFrameWidth() / 2;
+		centerArrow.y = arrowTexture->getFrameWidth() / 2;
+		arrowTexture->render(Rectangle(Point2D<>(100 + j * arrowTexture->getFrameHeight(), arrowTexture->getFrameHeight() + 50), arrowTexture->getFrameWidth(), arrowTexture->getFrameHeight()).to_sdl(), 90.0);
 	}
 
 	SDL_RenderPresent(renderer);
@@ -122,36 +167,61 @@ Game::render() const
 void
 Game::update()
 {
-	// Actualiza el estado de todos los globos de la escena
-	for (int i = 0; i < globos.size(); i++) {
-		if (!globos[i]->update(FRAME_PERIOD)) { // Si el globo se encuentra eliminado lo destruye
-			delete globos[i];
-			globos.erase(globos.begin() + i); 
+	if (bow->getArrows() <= 0 && !exit) {
+
+		exit = true;
+		endTime = END_TIME;
+	}
+
+	for (int i = 0; i < balloons.size(); i++) {
+		if (!balloons[i]->update(FRAME_PERIOD)) {
+			delete balloons[i];
+			balloons.erase(balloons.begin() + i);
+			i--;
+		}
+	}
+	for (int i = 0; i < arrows.size(); i++) {
+		if (!arrows[i]->update(FRAME_PERIOD)) {
+			delete arrows[i];
+			arrows.erase(arrows.begin() + i);
 			i--;
 		}
 	}
 
-	// Actualiza el estado del arco
-	arco->update(FRAME_PERIOD);
-
-	// Actualiza el estado de todas las flechas de la escena
-	for (int i = 0; i < flechas.size(); i++) {
-		if (!flechas[i]->update(FRAME_PERIOD)) { // Si la flecha se encuentra fuera de la pantalla lo elimina de la lista
-			delete flechas[i];
-			flechas.erase(flechas.begin() + i);
+	for (int i = 0; i < butterflies.size(); i++) {
+		if (!butterflies[i]->update(FRAME_PERIOD)) {
+			delete butterflies[i];
+			butterflies.erase(butterflies.begin() + i);
 			i--;
 		}
 	}
 
-	// Controla el ratio de aparición de los globos
-	if(SDL_GetTicks() % globoRetardo < FRAME_PERIOD) apareceGlobo(); 
+	if (SDL_GetTicks() % balloonDelay < FRAME_PERIOD) {
+		spawnBalloon();
+	}
+
+	if (bow->isShootingArrow()) {
+		shootArrow();
+	}
+
+	bow->update(FRAME_PERIOD);
+
+	if (exit)
+		endTime -= FRAME_PERIOD;
+	else if (score.points >= goal) {
+		loadLevel(++level);
+	}
+
 }
 
 void
 Game::run()
 {
+	for (int i = 0; i < numButterflies; i++) {
+		spawnButterflies();
+	}
 
-	while (!exit) {
+	while (!exit || endTime > 0) {
 		Uint32 start = SDL_GetTicks();
 
 		handleEvents();
@@ -159,97 +229,105 @@ Game::run()
 		render();
 
 		Uint32 delta = SDL_GetTicks() - start;
-		if (delta < FRAME_PERIOD) SDL_Delay(FRAME_PERIOD - delta);
+		if (delta < FRAME_PERIOD)
+			SDL_Delay(FRAME_PERIOD - delta);
+	}
+}
+
+void
+Game::loadLevel(int levelNumber) {
+	try {
+		ifstream isc(LEVEL_ROOT + std::to_string(levelNumber) + ".txt");
+		if (!isc.is_open()) throw FileNotFoundError(LEVEL_ROOT + std::to_string(levelNumber) + ".txt");
+		string read;
+		int maxArrows = 0;
+
+		while (!isc.eof())
+		{
+			isc >> read;
+			if (read == "arrows")
+				isc >> maxArrows;
+			else if (read == "baldelay")
+				isc >> balloonDelay;
+			else if (read == "goal")
+				isc >> goal;
+			else if (read == "bgcolor")
+				isc >> bgColor.red >> bgColor.green >> bgColor.blue;
+			else if (read == "balspeed")
+				isc >> balspeed;
+			else if (read == "butterflies")
+				isc >> numButterflies;
+			else isc.ignore();
+		}
+
+		isc.close();
+
+		if (maxArrows != 0 && balloonDelay != 0) {
+			bow->loadArrows(maxArrows);
+		}
+		else throw FileFormatError(LEVEL_ROOT + std::to_string(levelNumber) + ".txt", "Invalid format");
+	}
+	catch (FileNotFoundError& e) {
+		cout << e.what() << endl;
+	}
+	catch (FileFormatError& e) {
+		cout << e.what() << endl;
+	}
+	catch (SDLError& e) {
+		cout << e.what() << endl;
 	}
 }
 
 void
 Game::handleEvents()
 {
-	SDL_Event event;
+	if (!exit) {
+		SDL_Event event;
 
-	// Only quit is handled directly, everything else is delegated
-	while (SDL_PollEvent(&event)) {
-		if (event.type == SDL_EVENT_QUIT)
-			exit = true;
-
-		if (arco->handleEvent(event)) {
-			disparaFlecha();
+		// Only quit is handled directly, everything else is delegated
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_EVENT_QUIT)
+				exit = true;
+			bow->handleEvent(event);
 		}
 	}
 }
 
-bool
+
+void
 Game::checkCollision(const Rectangle& rect)
 {
-	for (int i = 0; i < globos.size(); i++) {
-		if (globos[i]->hit(rect)) {
-			return true;
-		}
+	int i = 0;
+	int j = 0;
+	bool collisionDetected = false;
+
+	while (i < balloons.size() && !collisionDetected) {
+		collisionDetected = balloons[i]->hit(rect);
+		if (collisionDetected) score.points++;
+		++i;
 	}
-	return false;
+
+	while (j < butterflies.size() && !collisionDetected) {
+		collisionDetected = butterflies[j]->hit(rect);
+		if (collisionDetected && score.points > 0) score.points-=3;
+		++j;
+	}
 }
 
-void
-Game::apareceGlobo() {
-	// Define el tamaño del globo en función del tamaño de la textura y la constante de escala
-	int globoAncho = getTexture(BALLOON)->getFrameWidth() * ESCALA_GLOBOS;
-	int globoAlto = getTexture(BALLOON)->getFrameHeight() * ESCALA_GLOBOS;
-	 
-	// Randomiza la posición en x en función de el tamaño del globo y la pantalla,y la velocidad del globo 
-	int globoX = uniform_int_distribution<int>(globoAncho, WINDOW_WIDTH - globoAncho)(random);
-	float globoVel = uniform_real_distribution<float>(COTA_INF_VEL, COTA_SUP_VEL)(random);
-
-	// Con los parámetros anteriores crea un collider rectangular en la parte inferior de la pantalla
-	Rectangle globoBox(Vector2D<float>(globoX, WINDOW_HEIGHT - globoAlto), globoAncho, globoAlto);
-
-	// Randomiza el color del globo en función de las filas que tenga la textura
-	int globoColor = uniform_int_distribution<int>(0, getTexture(BALLOON)->getNumRows() - 1)(random);
-
-	// Con todo lo anterior crea un objeto de tipo globo y lo agrega a la lista de globos de la escena
-	globos.push_back(new Balloon(globoBox, globoColor, Vector2D<float>(0, -globoVel), getTexture(BALLOON)));
-}
-
-void
-Game::disparaFlecha() {
-	flechas.push_back(arco->creaFlecha(arco->getPos()));
-	nFlechas--;
-}
-
-bool
-Game::loadLevel(char nivel) {
-	// Construye el nombre del archivo en char
-	string nombreArchivo = "";
-	nombreArchivo += LEVEL_ROOT;
-	nombreArchivo += nivel;
-	nombreArchivo += ".txt";
-	
-	string lectura;
-
-	ifstream archivo(nombreArchivo);
-	if (archivo.is_open()) {
-		while (!archivo.eof()) {
-			// Guarda las distintas opciones en función del código de lectura del enunciado
-			archivo >> lectura;
-
-			if (lectura == "arrows") {
-				archivo >> nFlechas;
-			}
-
-			else if (lectura == "baldelay") {
-				archivo >> globoRetardo;
-			}
-
-			else if (lectura == "#") {
-				archivo.ignore(numeric_limits<streamsize>::max(), '\n');
-			}
-
-			else archivo.ignore();
-		}
-		return true;
+Game::~Game()
+{
+	for (int i = 0; i < balloons.size(); i++) {
+		delete balloons[i];
 	}
-	else {
-		archivo.close();
-		return false;
+	for (int i = 0; i < arrows.size(); i++) {
+		delete arrows[i];
 	}
+	for (int i = 0; i < textures.size(); i++) {
+		delete textures[i];
+	}
+	for (int i = 0; i < butterflies.size(); i++) {
+		delete butterflies[i];
+	}
+	delete bow;
+
 }

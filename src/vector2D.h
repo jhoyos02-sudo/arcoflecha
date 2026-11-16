@@ -21,41 +21,68 @@ public:
 	T getY() const { return y; }
 
 	// Operadores
+	Vector2D& operator=(const Vector2D& otro) {
+		if (this != &otro) {
+			x = otro.x;
+			y = otro.y;
+		}
+		return *this;
+	}
+
 	Vector2D operator+(const Vector2D& otro) const {
 		return {x + otro.x, y + otro.y};
 	}
 
+	Vector2D operator+=(const Vector2D& otro) {
+		return { x += otro.x, y += otro.y };
+	}	
+
 	Vector2D operator-(const Vector2D& otro) const {
-		return {x - otro.x, y - otro.y};
+		return { x - otro.x, y - otro.y };
 	}
 
-	T operator*(const Vector2D& otro) const {
-		return {x * otro.x + y * otro.y};
+	Vector2D operator-=(const Vector2D& otro) {
+		return { x -= otro.x, y -= otro.y };
+	}
+
+	Vector2D operator*(const Vector2D& otro) const {
+		return { x * otro.x, y * otro.y };
 	}
 
 	Vector2D operator*(const T escalar) const {
 		return { x * escalar, y * escalar };
 	}
 
-	void operator+=(const Vector2D& otro) {
-		x += otro.getX();
-		y += otro.getY();
+	Vector2D operator/(const Vector2D& otro) const {
+		return { x / otro.x, y / otro.y };
 	}
 
-	void operator-=(const Vector2D& otro) {
-		x -= otro.getX();
-		y -= otro.getY();
+	Vector2D operator/(const T escalar) const {
+		return { x / escalar, y / escalar };
 	}
 
-	T length() const { return std::sqrt((x * x + y * y)); }
+	bool operator==(const Vector2D& otro) const {
+		return x == otro.x && y == otro.y;
+	}
+
+	bool operator!=(const Vector2D& otro) const {
+		return !(*this == otro);
+	}
+
+	T length() const {
+		return std::sqrt(x * x + y * y);
+	}
+
+	// TODO: completar
 
 	// Operadores de entrada/salida
 	friend std::ostream& operator<<(std::ostream& out, const Vector2D& v) {
 		return out << '{' << v.x << ", " << v.y << '}';
 	}
+
 };
 
 template<std::floating_point T = float>
-using Point2D = Vector2D <T>;
+using Point2D = Vector2D<T>;
 
 #endif // VECTOR2D_H

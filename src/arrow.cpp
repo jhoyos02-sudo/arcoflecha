@@ -1,24 +1,20 @@
 #include "arrow.h"
+#include "game.h"
 
-using namespace std;
-
-Arrow::Arrow(Game* g, Rectangle hit, Vector2D<float> vel, Texture* text) : game(g), hitbox(hit), velocidad(vel), textura(text) {}
+Arrow::Arrow(Game* game, const Rectangle& collider, const Vector2D<float>& velocidad, Texture* texture)
+	: mobileObject(velocidad, collider, texture, game) {}
 
 void
 Arrow::render() const {
-	textura->render(hitbox.to_sdl());
+	mobileObject::render();
 }
 
+
 bool
-Arrow::update(float delta) {
-	hitbox.move(velocidad * delta);
+Arrow::update(float deltaTime) {
+	mobileObject::update(deltaTime);
 
-	// Controla las colisiones del juego
-	game->checkCollision(hitbox);
+	game->checkCollision(Rectangle(collider.getTopLeftCorner() + Point2D<>(100, 0), .5, .5));
 
-	if (hitbox.getTopLeftCorner().getX() + hitbox.getWidth() > Game::WINDOW_WIDTH) {
-		return false;
-	}
-
-	return true;
+	return !((collider.getTopLeftCorner().getX() + collider.getWidth()) > Game::WINDOW_WIDTH);
 }

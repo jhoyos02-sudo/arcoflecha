@@ -1,80 +1,56 @@
 #include "bow.h"
+#include "arrow.h"
+#include "vector2D.h"
+#include "game.h"
 
 using namespace std;
 
-Bow::Bow(Game* g, Vector2D<float> topLeft, int nFlechas, Texture* text) : game(g), numFlechas(nFlechas), textura(text) {
-	armado = false;
-	direccion = Vector2D<float>(0, 0);
-	hitbox = Rectangle(topLeft, text->getFrameHeight() * Game::ESCALA_ARCOFLECHA, text->getFrameWidth() * Game::ESCALA_ARCOFLECHA);
-}
+Bow::Bow(const Rectangle& collider, const Vector2D<float>& velocity, Texture* texture)
+	: sceneObject(collider, texture, nullptr), isArmed(false), shootArrow(false), arrows(0), velocity(velocity) { }
 
-bool
+void
 Bow::handleEvent(const SDL_Event& event) {
 	if (event.type == SDL_EVENT_KEY_DOWN) {
-		// Manejo de inputs
 		switch (event.key.key) {
-			case SDLK_W:
-				direccion = Vector2D<float>(0, -1);
-				break;
-
-			case SDLK_S:
-				direccion = Vector2D<float>(0, 1);
-				break;
-
-			case SDLK_A:
-				if (numFlechas > 0) {
-					armado = true;
-					numFlechas--;
-				}
-				break;
-
-			case SDLK_D:
-				if (armado) {
-					armado = false;
-					return true;
-				}
-				break;
-
-			default: direccion = Vector2D<float>(0, 0);
+		case SDLK_UP:
+			velocity = Vector2D<float>(0, -1);
+			break;
+		case SDLK_DOWN:
+			velocity = Vector2D<float>(0, 1); 
+			break;
+		case SDLK_LEFT:
+			if (arrows>0) isArmed = true;
+			break;
+		case SDLK_RIGHT:
+			if (isArmed) {
+				isArmed = false;
+				shootArrow = true;
+			}
+			break;
+		default:
+			break;
 		}
 	}
-	else direccion = Vector2D<float>(0, 0);
-
-	return false;
+	else velocity = Vector2D<float>(0, 0);
 }
 
 void
 Bow::render() const {
-	textura->renderFrame(hitbox.to_sdl(), 0, !armado);	
+	texture->renderFrame(collider.to_sdl(), 0, !isArmed);
 }
 
 bool
-Bow::update(float delta) {
-	bool keep = true;
-
-	// Comprueba que bow no se salga de los limites
-	if (hitbox.moved(direccion * delta).getTopLeftCorner().getY() >= 0 && hitbox.moved(direccion * delta).getTopLeftCorner().getY() + hitbox.getHeight() <= Game::WINDOW_HEIGHT) {
-		hitbox.move(direccion * delta);
-	}
-
-	return keep;
+Bow::update(float deltaTime){
+	if (collider.getTopLeftCorner().getY() + collider.getHeight() + velocity.getY() * deltaTime * SPEED < Game::WINDOW_HEIGHT && 
+		collider.getTopLeftCorner().getY() + velocity.getY() * deltaTime * SPEED > 0) 
+		collider.move(velocity * deltaTime * SPEED);
+	return true;
 }
 
-Vector2D<float>
-Bow::getPos() const {
-	return hitbox.getTopLeftCorner();
+void 
+Bow::arrowShot() {
+	shootArrow = false;
+	arrows--;
 }
 
-// Crea un nuevo objeto del tipo flecha con los parámetros de Game
-Arrow*
-Bow::creaFlecha(Vector2D<float> pos) {
-	// Crea la flecha de una forma similar a como se crea balloon
-	int flechaAlto = game->getTexture(Game::ARROW)->getFrameWidth() * Game::ESCALA_ARCOFLECHA;
-	int flechaAncho = game->getTexture(Game::ARROW)->getFrameHeight() * Game::ESCALA_ARCOFLECHA;
 
-	Vector2D<float> flechaVel = Vector2D<float>(Game::VELOCIDAD_FLECHA, 0);
-
-	Rectangle flechaBox(Vector2D<float>(pos.getX(), pos.getY() + (game->getTexture(Game::BOW)->getFrameHeight() - game->getTexture(Game::ARROW)->getFrameHeight()) * Game::ESCALA_ARCOFLECHA / 2.0), flechaAlto, flechaAncho);
-
-	return new Arrow(game, flechaBox, flechaVel, game->getTexture(Game::ARROW));
-}

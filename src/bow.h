@@ -1,33 +1,28 @@
-#ifndef BOW_H
-#define BOW_H
-
-#include <SDL3/SDL.h>
+#pragma once
+#include "vector2D.h"
 #include "texture.h"
 #include "rectangle.h"
-#include "vector2D.h"
-#include "arrow.h"
-#include "game.h"
+#include "sceneObject.h"
 
-class Game;
-class Arrow;
+constexpr float const SPEED = 0.5f;
 
-class Bow 
-{
+class Bow : public sceneObject {
 private:
-	Game* game;
-	Rectangle hitbox;
-	Vector2D<float> direccion;
-	int numFlechas;
-	bool armado;
-	Texture* textura;
+	Vector2D<float> velocity;
+	bool isArmed;
+	bool shootArrow;
+	int arrows;
+	
 
-public:
-	Bow(Game* g, Vector2D<float> topLeft, int nFlechas, Texture* textura);
-	bool handleEvent(const SDL_Event& event);
-	void render() const;
-	bool update(float delta);
-	Vector2D<float> getPos() const;
-	Arrow* creaFlecha(Vector2D<float> pos);
+public: 
+	Bow(const Rectangle& collider, const Vector2D<float>& velocity, Texture* texture);	
+	void handleEvent(const SDL_Event& event);
+	void render() const override;
+	Rectangle getCollider() const { return collider; }
+	bool isBowArmed() const { return isArmed; }
+	bool isShootingArrow() const { return shootArrow; }
+	bool update(float deltaTime) override;
+	void arrowShot();
+	int getArrows() const { return arrows; }
+	void loadArrows(int maxArrows) { arrows = maxArrows; }
 };
-
-#endif // BOW_H

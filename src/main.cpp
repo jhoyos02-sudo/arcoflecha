@@ -6,26 +6,16 @@
 //
 
 #include "game.h"
+#include <iostream>
+#include <fstream>
+
+using namespace std;
 
 int main(int argc, char* argv[])
 {
-	try {
-		Game game('1');
-
-		game.run();
-	}
-
-	catch (const std::exception& stdError) {
-		std::cout << "Error: " << stdError.what() << std::endl;
-	}
-
-	catch (const char* sdlError) {
-		std::cout << "Error de SDL: " << sdlError << std::endl;
-	}
-
-	catch (...) {
-		std::cout << "Error desconocido" << std::endl;
-	}
+	Game game;
+	game.loadLevel(1);
+	game.run();
 
 	return 0;
 }

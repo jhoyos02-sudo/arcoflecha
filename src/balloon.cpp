@@ -1,61 +1,43 @@
 #include "balloon.h"
+#include "game.h"
 
-using namespace std;
-
-Balloon::Balloon(Rectangle h, int c, Vector2D<float> vel, Texture* text) : hitbox(h), color(Colores(c)), velocidad(vel), textura(text) {
-	explotado = false;
-	lastDelta = 0;
-	frame = 0;
-	finAnim = false;
-
-	frames_anim = FRAMES_ANIMACION;
-}
+Balloon::Balloon(const Rectangle& rect, const Vector2D<float>& vel, int color, Texture* texture)	
+	: mobileObject(vel, rect, texture, nullptr), color(color), exploded(false), animationFrame(0) { }
 
 bool 
 Balloon::hit(const Rectangle& obj) {
-	if (hitbox.hasIntersection(obj)) {
-		explotado = true;
-		return true;
+	bool collision = collider.hasIntersection(obj);
+
+	if (collision && !exploded) {
+		exploded = true;
+		return collision;
 	}
 	else return false;
+
 }
 
 void
 Balloon::render() const {
-	textura->renderFrame(hitbox.to_sdl(), color, frame);
+	texture->renderFrame(collider.to_sdl(), color, animationFrame);
 }
 
 bool
 Balloon::update(float delta) {
-	// Mueve el globo teniendo en cuenta delta
-	hitbox.move(velocidad * delta);
 
-	// Si se sale del rango de la pantalla devuelve false
-	if (hitbox.getTopLeftCorner().getY() + hitbox.getHeight() < 0) {
-		return false;
+	mobileObject::update(delta);
+
+
+	if (exploded && (SDL_GetTicks() % ANIMATION_RATE < Game::FRAME_PERIOD)) {
+		velocidad = Vector2D<float>(0, 0);
+		animationFrame++;
+		if (animationFrame >= 6) 
+			 return false;
 	}
-
-	if (explotado) {
-		// Comprueba que ha pasado suficiente tiempo entre frames y ejecuta la animación
-		if (lastDelta - delta > frames_anim) {
-			if (frame < FRAMES_ANIMACION) frame++;
-			else finAnim = true;
-
-			// Resetea lastDelta para el siguiente frame de la animación
-			lastDelta = 0;
-		}
-		
-		lastDelta += delta;
-	}
-
-	// Cuando termina la animación destruye el globo
-	if (finAnim) {
+	
+	if (collider.getTopLeftCorner().getY() < 0) {
 		return false;
 	}
 
 	return true;
 }
 
-Balloon::~Balloon() {
-	textura = nullptr;
-}

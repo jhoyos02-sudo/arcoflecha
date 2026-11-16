@@ -1,45 +1,30 @@
 #ifndef BALLOON_H
 #define BALLOON_H
 
-#include "rectangle.h"
+#include <iostream>
 #include "vector2D.h"
+#include "rectangle.h"
 #include "texture.h"
+#include "mobileObject.h"
 
-enum Colores {
-	AZUL,
-	VERDE,
-	NARANJA,
-	ROJO,
-	AMARILLO,
-	ROSA,
-	MORADO
-};
+constexpr const int ANIMATION_RATE = 100;
 
-class Balloon 
-{
+class Balloon : public mobileObject {
 private:
-	const int FRAMES_ANIMACION = 5;
+	int color;
 
-	Rectangle hitbox;
-	Colores color;
-	Vector2D<float> velocidad;
-	Texture* textura;
+	bool exploded;
 
-	bool explotado;
-
-	float lastDelta;
-	int frame;
-	bool finAnim;
-	Uint8 frames_anim;
+	int animationFrame;
 
 public:
-	
-	Balloon(Rectangle h, int c, Vector2D<float> vel, Texture* text);
-	bool hit(const Rectangle& obj);
-	void render() const;
-	bool update(float delta);
-	~Balloon();
+	Balloon(const Rectangle& rect, const Vector2D<float>& vel, int color, Texture* texture);
 
+	bool hit(const Rectangle& obj);
+
+	void render() const override;
+
+	bool update(float deltaTime) override;
 };
 
-#endif // BALLOON_H
+#endif

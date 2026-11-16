@@ -1,25 +1,23 @@
+
 #ifndef ARROW_H
 #define ARROW_H
 
-#include "rectangle.h"
 #include "vector2D.h"
-#include "game.h"
+#include "texture.h"
+#include "rectangle.h"
+#include "mobileObject.h"
 
 class Game;
 
-class Arrow 
-{
+class Arrow : public mobileObject {
 private:
-	Game* game;
-	Rectangle hitbox;
-	Vector2D<float> velocidad;
-	Texture* textura;
 
 public:
-	Arrow(Game* g, Rectangle hit, Vector2D<float> vel, Texture* text);
-	void render() const;
-	bool update(float delta);
+	Arrow(Game* game, const Rectangle& collider, const Vector2D<float>& velocidad, Texture* texture);
 
+	void render() const override;
+
+	bool update(float deltaTime) override;
 };
 
 #endif // ARROW_H

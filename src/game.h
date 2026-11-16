@@ -4,21 +4,30 @@
 #include <SDL3/SDL.h>
 #include <array>
 #include <istream>
-#include <vector>
+#include <vector>	
 #include <random>
-#include <fstream>
-#include <string>
-
 #include "rectangle.h"
-#include "balloon.h"
 #include "arrow.h"
+#include "balloon.h"
 #include "bow.h"
+#include <string>
+#include <SDL3_image/SDL_image.h>
+
+#include "butterfly.h"
+#include "texture.h"
+#include "vector2D.h"
+#include "gameError.h"
+#include "fileFormatError.h"
+#include "fileNotFoundError.h"
+#include "sdlError.h"
+#include <fstream>
 
 // Declaraciones anticipadas
 class Texture;
 class Balloon;
-class Arrow;
 class Bow;
+class Arrow;
+class Butterfly;
 
 /**
  * Clase principal del juego.
@@ -33,47 +42,64 @@ public:
 	// Tamaño real de la ventana
 	static constexpr int WINDOW_WIDTH = 1200;
 	static constexpr int WINDOW_HEIGHT = 900;
-
-	// Parámetros del juego
-	static constexpr float ESCALA_GLOBOS = 0.4f;
-	static constexpr float ESCALA_ARCOFLECHA = 0.3f;
-	static constexpr float VELOCIDAD_FLECHA = 2;
-
-	static constexpr float COTA_INF_VEL = 0.1f;
-	static constexpr float COTA_SUP_VEL = 1.5f;
+	static constexpr int SCORE_X = 900;
+	static constexpr int SCORE_Y = 900;
 
 	enum TextureName
 	{
 		BOW = 0,
 		ARROW,
+		ARROW2,	
 		BALLOON,
-		DIGITS,
-		NUM_ARROWS,
+		SCORE,
+		BUTTERFLY,
 		NUM_TEXTURES
 	};
 
 private:
+	std::mt19937_64 randomGenerator;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
+	Bow* bow;
+	std::vector<Arrow*> arrows;
+	std::vector<Balloon*> balloons;
+	std::vector<Butterfly*> butterflies;
 	std::array<Texture*, NUM_TEXTURES> textures;
 
 	void render() const;
 	void update();
 	void handleEvents();
+	void spawnBalloon();
+	void spawnButterflies();
+	void shootArrow();
 
+	struct Score {
+		int points;
+		Rectangle rect;
+		Texture* texture;
+	};	
+
+	struct BgColor {
+		int red;
+		int green;
+		int blue;
+	};
+
+	Score score;
+	Texture* arrowTexture;
+	BgColor bgColor;
+	int balloonDelay;
+	int goal;
+	int level;
+	int numButterflies;
+	int balspeed;
+	int endTime;
 	bool exit;
 
 	// Elemento del juego
-	std::vector<Balloon*> globos;
-	std::vector<Arrow*> flechas;
-	int globoRetardo;
-	int nFlechas;
-	Bow* arco;
-
-	std::mt19937_64 random;
 
 public:
-	Game(char niv);
+	Game();
 	~Game();
 
 	// Obtiene una textura por su nombre
@@ -82,13 +108,10 @@ public:
 	// Ejecuta el bucle principal del juego
 	void run();
 
+	void loadLevel(int levelNumber);
+
 	// Comprueba si hay algún objeto colocado en ese rectángulo
-	bool checkCollision(const Rectangle& rect);
-
-	void apareceGlobo();
-	void disparaFlecha();
-
-	bool loadLevel(char nivel);
+	void checkCollision(const Rectangle& rect);
 };
 
 inline Texture*

@@ -9,9 +9,9 @@ class gameObject
 {
 protected:
 	Game* game;
-	Texture* texture;
+	Texture* textura;
 public:
-	gameObject(Game* game, Texture* texture) : game(game), texture(texture) {}
+	gameObject(Game* g, Texture* text) : game(g), textura(text) {}
 
 	virtual void render() const = 0;
 	virtual bool update(float delta) = 0;

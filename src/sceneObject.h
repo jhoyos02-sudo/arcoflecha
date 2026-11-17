@@ -7,14 +7,14 @@
 class sceneObject : public gameObject
 {
 protected:
-	Rectangle collider;
+	Rectangle hitbox;
 
 public:
-	sceneObject(Rectangle collider, Texture* texture, Game* game) :gameObject(game, texture), collider(collider) {}
+	sceneObject(Rectangle h, Texture* text, Game* g) :gameObject(g, text), hitbox(h) {}
 
 	void render() const override;
 	bool update(float delta) override;
-	bool hit(const Rectangle& obj) { return collider.hasIntersection(obj); }
+	bool hit(const Rectangle& obj) { return hitbox.hasIntersection(obj); }
 };
 
 #endif // SCENE_OBJECT_H

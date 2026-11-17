@@ -1,4 +1,3 @@
-
 #ifndef ARROW_H
 #define ARROW_H
 
@@ -13,11 +12,9 @@ class Arrow : public mobileObject {
 private:
 
 public:
-	Arrow(Game* game, const Rectangle& collider, const Vector2D<float>& velocidad, Texture* texture);
-
+	Arrow(Game* g, const Rectangle& hit, const Vector2D<float>& vel, Texture* text);
 	void render() const override;
-
-	bool update(float deltaTime) override;
+	bool update(float delta) override;
 };
 
 #endif // ARROW_H

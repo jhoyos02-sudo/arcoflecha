@@ -5,12 +5,12 @@
 
 class FileFormatError : public GameError
 {
-	std::string message;
-	std::string file;
-	std::string line;
+	std::string mensaje;
+	std::string archivo;
+	std::string linea;
 
 public:
-	FileFormatError() : GameError("FileFormatError"), message("FileFormatError") {};
-	FileFormatError(const std::string& file, const std::string& line) : GameError("FileFormatError : " + file + " Line: " + line), message("FileFormatError : " + file + " Line: " + line), file(file), line(line) {};
+	FileFormatError() : GameError("FileFormatError"), mensaje("FileFormatError") {};
+	FileFormatError(const std::string& file, const std::string& line) : GameError("FileFormatError : " + file + " Line: " + line), mensaje("FileFormatError : " + file + " Line: " + line), archivo(file), linea(line) {};
 };
 

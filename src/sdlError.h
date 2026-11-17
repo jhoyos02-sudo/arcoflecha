@@ -5,11 +5,11 @@
 
 class SDLError : public GameError
 {
-	std::string message;
+	std::string mensaje;
 
 	std::string getError() const;
 
 public:
-	SDLError() : GameError(getError()), message(getError()) {};
+	SDLError() : GameError(getError()), mensaje(getError()) {};
 };
 

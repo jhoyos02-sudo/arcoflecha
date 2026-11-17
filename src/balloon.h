@@ -7,24 +7,22 @@
 #include "texture.h"
 #include "mobileObject.h"
 
-constexpr const int ANIMATION_RATE = 100;
+constexpr const int FRAMES_ANIMACION = 100;
 
 class Balloon : public mobileObject {
 private:
 	int color;
-
-	bool exploded;
-
-	int animationFrame;
+	bool explotado;
+	int frame;
 
 public:
-	Balloon(const Rectangle& rect, const Vector2D<float>& vel, int color, Texture* texture);
+	Balloon(const Rectangle& h, const Vector2D<float>& vel, int c, Texture* text);
 
 	bool hit(const Rectangle& obj);
 
 	void render() const override;
 
-	bool update(float deltaTime) override;
+	bool update(float delta) override;
 };
 
 #endif

@@ -42,59 +42,70 @@ public:
 	// Tamaño real de la ventana
 	static constexpr int WINDOW_WIDTH = 1200;
 	static constexpr int WINDOW_HEIGHT = 900;
+
 	static constexpr int SCORE_X = 900;
 	static constexpr int SCORE_Y = 900;
 
+	static constexpr float SCALE_FACTOR = 0.5f;
+	static constexpr float BUTTERFLY_SIZE_FACTOR = 1.3f;
+
+	static constexpr float COTA_INF_VEL = 0.2f;
+	static constexpr float COTA_SUP_VEL = 0.5f;
+
+	static constexpr float END_TIME = 2000;
+	
 	enum TextureName
 	{
 		BOW = 0,
 		ARROW,
-		ARROW2,	
+		NUM_ARROWS,	
 		BALLOON,
-		SCORE,
+		DIGITS,
 		BUTTERFLY,
 		NUM_TEXTURES
 	};
 
 private:
-	std::mt19937_64 randomGenerator;
+	std::mt19937_64 random;
+
 	SDL_Window* window;
 	SDL_Renderer* renderer;
-	Bow* bow;
-	std::vector<Arrow*> arrows;
-	std::vector<Balloon*> balloons;
-	std::vector<Butterfly*> butterflies;
 	std::array<Texture*, NUM_TEXTURES> textures;
+
+	Bow* arco;
+	std::vector<Arrow*> flechas;
+	std::vector<Balloon*> globos;
+	std::vector<Butterfly*> mariposas;
 
 	void render() const;
 	void update();
 	void handleEvents();
-	void spawnBalloon();
-	void spawnButterflies();
-	void shootArrow();
+	void apareceGlobo();
+	void apareceMariposas();
+	void disparaFlecha();
 
-	struct Score {
-		int points;
+	struct Marcador {
+		int puntos;
 		Rectangle rect;
-		Texture* texture;
+		Texture* text;
 	};	
 
 	struct BgColor {
-		int red;
-		int green;
-		int blue;
+		int rojo;
+		int verde;
+		int azul;
 	};
 
-	Score score;
-	Texture* arrowTexture;
+	Marcador marcador;
+	Texture* texturaFlecha;
 	BgColor bgColor;
-	int balloonDelay;
-	int goal;
-	int level;
-	int numButterflies;
-	int balspeed;
+	int globoRetardo;
+	int objetivo;
+	int nivel;
+	int numMariposas;
+	int globoVel;
 	int endTime;
-	bool exit;
+	bool fin;
 
 	// Elemento del juego
 
@@ -108,7 +119,7 @@ public:
 	// Ejecuta el bucle principal del juego
 	void run();
 
-	void loadLevel(int levelNumber);
+	void loadLevel(int nivel);
 
 	// Comprueba si hay algún objeto colocado en ese rectángulo
 	void checkCollision(const Rectangle& rect);

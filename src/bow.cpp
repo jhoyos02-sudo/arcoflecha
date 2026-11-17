@@ -5,52 +5,52 @@
 
 using namespace std;
 
-Bow::Bow(const Rectangle& collider, const Vector2D<float>& velocity, Texture* texture)
-	: sceneObject(collider, texture, nullptr), isArmed(false), shootArrow(false), arrows(0), velocity(velocity) { }
+Bow::Bow(const Rectangle& hit, const Vector2D<float>& vel, Texture* text)
+	: sceneObject(hit, text, nullptr), armado(false), disparaFlecha(false), numFlechas(0), velocidad(vel) { }
 
 void
 Bow::handleEvent(const SDL_Event& event) {
 	if (event.type == SDL_EVENT_KEY_DOWN) {
 		switch (event.key.key) {
 		case SDLK_UP:
-			velocity = Vector2D<float>(0, -1);
+			velocidad = Vector2D<float>(0, -1);
 			break;
 		case SDLK_DOWN:
-			velocity = Vector2D<float>(0, 1); 
+			velocidad = Vector2D<float>(0, 1); 
 			break;
 		case SDLK_LEFT:
-			if (arrows>0) isArmed = true;
+			if (numFlechas>0) armado = true;
 			break;
 		case SDLK_RIGHT:
-			if (isArmed) {
-				isArmed = false;
-				shootArrow = true;
+			if (armado) {
+				armado = false;
+				disparaFlecha = true;
 			}
 			break;
 		default:
 			break;
 		}
 	}
-	else velocity = Vector2D<float>(0, 0);
+	else velocidad = Vector2D<float>(0, 0);
 }
 
 void
 Bow::render() const {
-	texture->renderFrame(collider.to_sdl(), 0, !isArmed);
+	textura->renderFrame(hitbox.to_sdl(), 0, !armado);
 }
 
 bool
-Bow::update(float deltaTime){
-	if (collider.getTopLeftCorner().getY() + collider.getHeight() + velocity.getY() * deltaTime * SPEED < Game::WINDOW_HEIGHT && 
-		collider.getTopLeftCorner().getY() + velocity.getY() * deltaTime * SPEED > 0) 
-		collider.move(velocity * deltaTime * SPEED);
+Bow::update(float delta){
+	if (hitbox.getTopLeftCorner().getY() + hitbox.getHeight() + velocidad.getY() * delta * VEL < Game::WINDOW_HEIGHT && 
+		hitbox.getTopLeftCorner().getY() + velocidad.getY() * delta * VEL > 0) 
+		hitbox.move(velocidad * delta * VEL);
 	return true;
 }
 
 void 
 Bow::arrowShot() {
-	shootArrow = false;
-	arrows--;
+	disparaFlecha = false;
+	numFlechas--;
 }
 
 

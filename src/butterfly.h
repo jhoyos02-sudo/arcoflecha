@@ -8,28 +8,24 @@
 #include "mobileObject.h"
 #include <random>
 
-constexpr const float BUTTERFLY_SPEED = 0.2;
+constexpr const float VEL_MARIPOSA = 0.2;
 
 class Butterfly : public mobileObject {
 private:
-	int direction;
+	std::mt19937_64 random;
 
-	bool shot;
+	int direccion;
+	bool muerto;
+	int frame;
 
-	int animationFrame;
-
-	void returnDir();
-
-	std::mt19937_64 randomGenerator;
+	void finGiro();
 
 public:
-	Butterfly(const Rectangle& rect, const Vector2D<float>& vel, int dir, Texture* texture);
+	Butterfly(const Rectangle& hitbox, const Vector2D<float>& vel, int dir, Texture* text);
 
 	bool hit(const Rectangle& obj);
-
 	void render() const override;
-
-	bool update(float deltaTime) override;
+	bool update(float delta) override;
 };
 
 #endif

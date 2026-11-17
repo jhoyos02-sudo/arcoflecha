@@ -2,5 +2,5 @@
 
 void
 gameObject::render() const {
-	texture->render();
+	textura->render();
 }

@@ -2,6 +2,6 @@
 
 bool mobileObject::update(float delta)
 {
-	collider.move(velocidad * delta);
+	hitbox.move(velocidad * delta);
 	return true;
 }

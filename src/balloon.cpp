@@ -1,40 +1,35 @@
 #include "balloon.h"
 #include "game.h"
 
-Balloon::Balloon(const Rectangle& rect, const Vector2D<float>& vel, int color, Texture* texture)	
-	: mobileObject(vel, rect, texture, nullptr), color(color), exploded(false), animationFrame(0) { }
+Balloon::Balloon(const Rectangle& h, const Vector2D<float>& vel, int c, Texture* text)	
+	: mobileObject(vel, h, text, nullptr), color(c), explotado(false), frame(0) { }
 
 bool 
 Balloon::hit(const Rectangle& obj) {
-	bool collision = collider.hasIntersection(obj);
-
-	if (collision && !exploded) {
-		exploded = true;
-		return collision;
+	if (hitbox.hasIntersection(obj) && !explotado) {
+		explotado = true;
+		return true;
 	}
 	else return false;
-
 }
 
 void
 Balloon::render() const {
-	texture->renderFrame(collider.to_sdl(), color, animationFrame);
+	textura->renderFrame(hitbox.to_sdl(), color, frame);
 }
 
 bool
 Balloon::update(float delta) {
-
 	mobileObject::update(delta);
 
-
-	if (exploded && (SDL_GetTicks() % ANIMATION_RATE < Game::FRAME_PERIOD)) {
+	if (explotado && (SDL_GetTicks() % FRAMES_ANIMACION < Game::FRAME_PERIOD)) {
 		velocidad = Vector2D<float>(0, 0);
-		animationFrame++;
-		if (animationFrame >= 6) 
+		frame++;
+		if (frame >= 6) 
 			 return false;
 	}
 	
-	if (collider.getTopLeftCorner().getY() < 0) {
+	if (hitbox.getTopLeftCorner().getY() < 0) {
 		return false;
 	}
 

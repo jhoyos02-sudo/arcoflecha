@@ -10,7 +10,7 @@ protected:
 	Vector2D<float> velocidad;
 
 public:
-	mobileObject(const Vector2D<float>& velocidad, Rectangle collider, Texture* texture, Game* game) : sceneObject(collider, texture, game), velocidad(velocidad) {}
+	mobileObject(const Vector2D<float>& vel, Rectangle hit, Texture* text, Game* g) : sceneObject(hit, text, g), velocidad(vel) {}
 	virtual void render() const override { sceneObject::render(); }
 
 	virtual bool update(float delta) override;

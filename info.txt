@@ -1,0 +1,5 @@
+Javier Hoyos Giunta
+Jesús Maldonado Becerra
+
+Hemos implementado la funcionalidad completa de la práctica y además hemos añadido el manejo de la instancia de la flecha desde el arco.
+En el momento de la entrega no hemos encontrado problemas en la ejecución ni pérdidas de memoria.

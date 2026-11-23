@@ -26,7 +26,7 @@ public:
 	bool handleEvent(const SDL_Event& event);
 	void render() const;
 	bool update(float delta);
-	Vector2D<float> getPos();
+	Vector2D<float> getPos() const;
 	Arrow* creaFlecha(Vector2D<float> pos);
 };
 

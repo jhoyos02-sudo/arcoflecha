@@ -39,6 +39,9 @@ public:
 	static constexpr float ESCALA_ARCOFLECHA = 0.3f;
 	static constexpr float VELOCIDAD_FLECHA = 2;
 
+	static constexpr float COTA_INF_VEL = 0.1f;
+	static constexpr float COTA_SUP_VEL = 1.5f;
+
 	enum TextureName
 	{
 		BOW = 0,

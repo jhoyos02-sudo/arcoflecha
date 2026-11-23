@@ -2,14 +2,13 @@
 
 using namespace std;
 
-Balloon::Balloon(Rectangle h, int c, Vector2D<float> vel, Texture* text) : color(Colores(c)), velocidad(vel), textura(text), hitbox(h) {
+Balloon::Balloon(Rectangle h, int c, Vector2D<float> vel, Texture* text) : hitbox(h), color(Colores(c)), velocidad(vel), textura(text) {
 	explotado = false;
-
 	lastDelta = 0;
 	frame = 0;
 	finAnim = false;
 
-	frames_anim = 5;
+	frames_anim = FRAMES_ANIMACION;
 }
 
 bool 
@@ -39,7 +38,7 @@ Balloon::update(float delta) {
 	if (explotado) {
 		// Comprueba que ha pasado suficiente tiempo entre frames y ejecuta la animación
 		if (lastDelta - delta > frames_anim) {
-			if (frame < 5) frame++;
+			if (frame < FRAMES_ANIMACION) frame++;
 			else finAnim = true;
 
 			// Resetea lastDelta para el siguiente frame de la animación

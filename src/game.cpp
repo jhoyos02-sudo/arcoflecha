@@ -10,10 +10,10 @@ constexpr const char* IMAGE_ROOT = "../assets/images/";
 constexpr const char* LEVEL_ROOT = "../assets/levels/";
 
 // Color fondo
-Uint8 r = 57;
-Uint8 g = 150;
-Uint8 b = 72;
-Uint8 a = 1;
+constexpr const Uint8 r = 57;
+constexpr const Uint8 g = 150;
+constexpr const Uint8 b = 72;
+constexpr const Uint8 a = 1;
 
 // Estructura para especificar las texturas que hay que
 // cargar y el tamaño de su matriz de frames
@@ -122,7 +122,6 @@ Game::render() const
 void
 Game::update()
 {
-	
 	// Actualiza el estado de todos los globos de la escena
 	for (int i = 0; i < globos.size(); i++) {
 		if (!globos[i]->update(FRAME_PERIOD)) { // Si el globo se encuentra eliminado lo destruye
@@ -144,6 +143,7 @@ Game::update()
 		}
 	}
 
+	// Controla el ratio de aparición de los globos
 	if(SDL_GetTicks() % globoRetardo < FRAME_PERIOD) apareceGlobo(); 
 }
 
@@ -198,7 +198,7 @@ Game::apareceGlobo() {
 	 
 	// Randomiza la posición en x en función de el tamaño del globo y la pantalla,y la velocidad del globo 
 	int globoX = uniform_int_distribution<int>(globoAncho, WINDOW_WIDTH - globoAncho)(random);
-	float globoVel = uniform_real_distribution<float>(0.1f, 1.5f)(random);
+	float globoVel = uniform_real_distribution<float>(COTA_INF_VEL, COTA_SUP_VEL)(random);
 
 	// Con los parámetros anteriores crea un collider rectangular en la parte inferior de la pantalla
 	Rectangle globoBox(Vector2D<float>(globoX, WINDOW_HEIGHT - globoAlto), globoAncho, globoAlto);
@@ -210,7 +210,6 @@ Game::apareceGlobo() {
 	globos.push_back(new Balloon(globoBox, globoColor, Vector2D<float>(0, -globoVel), getTexture(BALLOON)));
 }
 
-// Esto estaria bien meterlo en bow, en game un metodo addArrow con un puntero a flecha y en arrow incluir un puntero a game igual que en la flecha
 void
 Game::disparaFlecha() {
 	flechas.push_back(arco->creaFlecha(arco->getPos()));
@@ -219,6 +218,7 @@ Game::disparaFlecha() {
 
 bool
 Game::loadLevel(char nivel) {
+	// Construye el nombre del archivo en char
 	string nombreArchivo = "";
 	nombreArchivo += LEVEL_ROOT;
 	nombreArchivo += nivel;
@@ -229,6 +229,7 @@ Game::loadLevel(char nivel) {
 	ifstream archivo(nombreArchivo);
 	if (archivo.is_open()) {
 		while (!archivo.eof()) {
+			// Guarda las distintas opciones en función del código de lectura del enunciado
 			archivo >> lectura;
 
 			if (lectura == "arrows") {
@@ -238,12 +239,6 @@ Game::loadLevel(char nivel) {
 			else if (lectura == "baldelay") {
 				archivo >> globoRetardo;
 			}
-
-			//else if (lectura == "bgcolor") {
-			//	archivo >> r;
-			//	archivo >> g;
-			//	archivo >> b;
-			//}
 
 			else if (lectura == "#") {
 				archivo.ignore(numeric_limits<streamsize>::max(), '\n');

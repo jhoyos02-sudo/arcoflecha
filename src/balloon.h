@@ -18,6 +18,8 @@ enum Colores {
 class Balloon 
 {
 private:
+	const int FRAMES_ANIMACION = 5;
+
 	Rectangle hitbox;
 	Colores color;
 	Vector2D<float> velocidad;
